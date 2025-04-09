@@ -90,6 +90,13 @@ internal class TabCharacter
             change = true;
         }
 
+        var enabled = characterConfig.Enabled;
+        if (ImGui.Checkbox("  Enabled", ref enabled))
+        {
+          characterConfig.Enabled = enabled;
+          change = true;
+        }
+
         var localPlayer = Svc.ClientState.LocalPlayer;
         if (change && localPlayer != null && localPlayer.Name.TextValue.Equals(characterConfig.Name) && localPlayer.HomeWorld.RowId == characterConfig.World)
         {

@@ -13,6 +13,8 @@ public class CharacterConfig
 
     public string Name = "";
 
+    public bool Enabled { get; set; } = true;
+
     public bool IconReplace { get; set; } = false;
 
     public int IconId { get; set; } = 0;
@@ -51,6 +53,8 @@ public class CharacterConfig
 
 public class CharacterData
 {
+    public bool Enabled { get; set; } = true;
+
     public bool IconReplace { get; set; } = false;
 
     public int IconId { get; set; } = 0;
@@ -62,6 +66,7 @@ public class CharacterData
     public string FakeFcNameText { get; set; } = "";
 
     public static implicit operator CharacterData(CharacterConfig config) => new() {
+        Enabled = config.Enabled,
         IconReplace = config.IconReplace,
         IconId = config.IconId,
         FakeNameText = config.FakeNameText,
@@ -69,6 +74,7 @@ public class CharacterData
         FakeFcNameText = config.FakeFcNameText
     };
     public static implicit operator CharacterConfig(CharacterData data) => new() {
+        Enabled = data.Enabled,
         IconReplace = data.IconReplace,
         IconId = data.IconId,
         FakeNameText = data.FakeNameText,

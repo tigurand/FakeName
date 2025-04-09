@@ -104,8 +104,8 @@ public class UpdateNamePlateHook : IDisposable
                     var newFcName = characterConfig.FakeFcNameText.Length > 0
                       ? $" «{characterConfig.FakeFcNameText}»" 
                       : character.CompanyTag.TextValue.Length > 0
-                        : $" «{character.CompanyTag.TextValue}»"
-                        ? c->IsWanderer()
+                        ? $" «{character.CompanyTag.TextValue}»"
+                        : c->IsWanderer()
                           ? " «Wanderer»"
                           : c->IsTraveler()
                             ? " «Traveler»"

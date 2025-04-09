@@ -154,12 +154,12 @@ public class FakeName : IDalamudPlugin
         if (Idm.TryGetCharacterConfig(name, world, out characterConfig))
         {
             PluginLog.Debug($"找到了{characterConfig.Name}的ipc配置：");
-            return true;
+            return characterConfig.Enabled;
         }
 
         if (C.TryGetCharacterConfig(name, world, out characterConfig))
         {
-            return true;
+            return characterConfig.Enabled;
         }
 
         return false;

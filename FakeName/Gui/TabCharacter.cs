@@ -64,7 +64,7 @@ internal class TabCharacter
         // }
 
         // Name
-        // ImGui.SetCursorPosX(50);
+        ImGui.SetCursorPosX(50);
         var fakeName = characterConfig.FakeNameText;
         if (ImGui.InputTextWithHint("##Name", l.Value.IncognitoName(), ref fakeName, 100))
         {
@@ -73,17 +73,16 @@ internal class TabCharacter
         }
 
         // FcName
-        // Enabling then disabling this when a traveller or wanderer seems to break it? disabled for now.
-        // var hideFcName = characterConfig.HideFcName;
-        // if (ImGui.Checkbox("##FcName", ref hideFcName))
-        // {
-        //     characterConfig.HideFcName = hideFcName;
-        //     change = true;
-        // }
+        var hideFcName = characterConfig.HideFcName;
+        if (ImGui.Checkbox("##FcName", ref hideFcName))
+        {
+            characterConfig.HideFcName = hideFcName;
+            change = true;
+        }
 
-        // if (ImGui.IsItemHovered()) ImGui.SetTooltip("Hide Free Company Name");
-        // ImGui.SameLine();
-        // ImGui.SetCursorPosX(50);
+        if (ImGui.IsItemHovered()) ImGui.SetTooltip("Hide Free Company Name");
+        ImGui.SameLine();
+        ImGui.SetCursorPosX(50);
         var fakeFcName = characterConfig.FakeFcNameText;
         if (ImGui.InputTextWithHint("##Free Company Name", "Free Company Name", ref fakeFcName, 100))
         {

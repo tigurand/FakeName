@@ -10,6 +10,7 @@ using FakeName.Component;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using BattleChara = FFXIVClientStructs.FFXIV.Client.Game.Character.BattleChara;
+using FFXIVClientStructs.FFXIV.Client.Game.Character;
 
 namespace FakeName.Hook;
 
@@ -96,14 +97,27 @@ public class UpdateNamePlateHook : IDisposable
                 namePlateInfo->FcName.SetString("");
                 changed = true;
             }
-            else if (/* character.CurrentWorld.RowId == character.HomeWorld.RowId &&  */!dutyComponent.InDuty && character.CompanyTag.TextValue.Length > 0)
+            else if (/* character.CurrentWorld.RowId == character.HomeWorld.RowId && */ !dutyComponent.InDuty /* && character.CompanyTag.TextValue.Length > 0 */)
             {
-                var newFcName = characterConfig.FakeFcNameText.Length > 0 ? $" «{characterConfig.FakeFcNameText}»" : $" «{character.CompanyTag.TextValue}»";
-                if (!namePlateInfo->FcName.ToString().Equals(newFcName))
-                {
-                    //Service.Log.Debug($"替换了部队简称：{namePlateInfo->FcName}->{newFcName} tag:{Service.ClientState.TerritoryType} duty:{Service.DutyState.IsDutyStarted}");
-                    namePlateInfo->FcName.SetString(newFcName);
-                    changed = true;
+                if (character != null || character.Address != IntPtr.Zero) {
+                    var c = (Character*)character.Address;
+                    var newFcName = characterConfig.FakeFcNameText.Length > 0
+                      ? $" «{characterConfig.FakeFcNameText}»" 
+                      : character.CompanyTag.TextValue.Length == 0
+                        ? c->IsWanderer()
+                          ? " «Wanderer»"
+                          : c->IsTraveler()
+                            ? " «Traveler»"
+                            : c->IsVoyager()
+                              ? " «Voyager»"
+                              : ""
+                        : $" «{character.CompanyTag.TextValue}»";
+                    if (!namePlateInfo->FcName.ToString().Equals(newFcName))
+                    {
+                        //Service.Log.Debug($"替换了部队简称：{namePlateInfo->FcName}->{newFcName} tag:{Service.ClientState.TerritoryType} duty:{Service.DutyState.IsDutyStarted}");
+                        namePlateInfo->FcName.SetString(newFcName);
+                        changed = true;
+                    }
                 }
             }
 

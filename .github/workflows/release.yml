@@ -1,0 +1,51 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  ASSEMBLY_VERSION:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Download Dalamud
+        run: |
+          curl -o latest.zip https://goatcorp.github.io/dalamud-distrib/latest.zip
+          mkdir -p ~/.xlcore/dalamud/Hooks/dev/
+          unzip latest.zip -d ~/.xlcore/dalamud/Hooks/dev/
+      - name: Build with dotnet
+        run: dotnet build --configuration Release -p:DalamudLibPath=$HOME/.xlcore/dalamud/Hooks/dev/ -p:EnableWindowsTargeting=true
+      - name: read version
+        run: |
+          VERSION=$(jq -r '.AssemblyVersion' ./FakeName/bin/Release/FakeName/FakeName.json)
+          echo "ASSEMBLY_VERSION=$VERSION" >> $GITHUB_ENV
+      - name: update repo.json
+        run: |
+          echo TODO: env.ASSEMBLY_VERSION into repo.json, and update download and install path
+      - name: create release
+        run: |
+          gh release create "${{ env.ASSEMBLY_VERSION }}" ./FakeName/bin/Release/FakeName/latest.zip \
+            --title "FakeName ${{ env.ASSEMBLY_VERSION }}" --notes ""
+      - name: update repo.json
+        run: |
+          LINK="https://github.com/keifufu/FakeName/releases/download/${{ env.ASSEMBLY_VERSION }}/latest.zip"
+          VER="${{ env.ASSEMBLY_VERSION }}"
+          jq --arg link "$LINK" --arg ver "$VER" '(.[0].DownloadLinkInstall) = $link | .[0].DownloadLinkUpdate = $link | .[0].AssemblyVersion = $ver' repo.json > tmp.json && mv tmp.json repo.json
+      - name: commit changes
+        run: |
+          git config user.name "Github Actions"
+          git config user.email "actions@github.com"
+          git add repo.json
+          git commit -m "v${{ env.ASSEMBLY_VERSION }}"
+          git push origin main

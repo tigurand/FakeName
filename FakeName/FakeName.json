@@ -1,18 +1,14 @@
 {
-    "Author": "msew11",
-    "Name": "FakeName",
-    "Punchline": "修改游戏界面中出现的角色名。(还没测，好多报错乱修一通，可能会崩!!!)",
-    "Description": "支持多角色：名牌，宠物名牌，选角界面，小队列表，目标信息，焦点，倒计时通知。\n支持当前角色：角色信息，好友，部队，通讯贝\n不支持：聊天面板",
-    "InternalName": "FakeName",
-    "ApplicableVersion": "any",
-    "repoUrl": "https://github.com/msew11/FakeName",
-    "IconUrl": "https://raw.githubusercontent.com/msew11/FakeName/master/icon.png",
-    "Changelog": "",
-    "Tags": [
-        "name",
-        "ui"
-    ],
-    "LoadPriority": 128,
-    "DalamudApiLevel": 10
+  "Author": "keifufu",
+  "Name": "Fake Name",
+  "Punchline": "Show a fake name on your game ui.",
+  "Description": "Change your and other peoples names in various UI elements!",
+  "InternalName": "FakeName",
+  "ApplicableVersion": "any",
+  "repoUrl": "https://github.com/keifufu/FakeName",
+  "IconUrl": "https://raw.githubusercontent.com/keifufu/FakeName/main/icon.png",
+  "Changelog": "",
+  "Tags": ["name", "ui"],
+  "LoadPriority": 128,
+  "DalamudApiLevel": 12
 }
-

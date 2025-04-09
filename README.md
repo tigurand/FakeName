@@ -1,10 +1,10 @@
 # ![](icon.png)FakeName
 
-![Github Latest Releases](https://img.shields.io/github/downloads/msew11/FakeName/latest/total.svg?style=for-the-badge)
-![Github All Releases](https://img.shields.io/github/downloads/msew11/FakeName/total.svg?style=for-the-badge)
+Fork of [msew11/FakeName](https://github.com/msew11/FakeName) for global dalamud and new features such as chat support.
 
-Change your name in game interface.
+Change your and other peoples names in various UI elements!  
+This is NOT a privacy plugin!! This will certainly leak your name in multiple ways if you're streaming!
 
 ```
-https://raw.githubusercontent.com/msew11/DalamudPlugins/master/pluginmaster.json
+https://raw.githubusercontent.com/keifufu/FakeName/main/repo.json
 ```

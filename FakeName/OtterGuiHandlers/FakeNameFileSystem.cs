@@ -152,7 +152,7 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
 
         private void NewLocalCharaButton(Vector2 size)
         {
-            if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.User.ToIconString(), size, "添加本地角色", false, true))
+            if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.User.ToIconString(), size, "Add Local Character", false, true))
             {
                 if (Svc.ClientState.LocalPlayer != null) {
                     var name = Svc.ClientState.LocalPlayer.Name.TextValue;
@@ -172,7 +172,7 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
 
         private void NewTargetCharaButton(Vector2 size)
         {
-            if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.DotCircle.ToIconString(), size, "添加目标角色", false, true))
+            if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.DotCircle.ToIconString(), size, "Add Target Character", false, true))
             {
                 if (Svc.Targets.Target is IPlayerCharacter pc) {
                     var name = pc.Name.TextValue;
@@ -191,7 +191,7 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
 
         private void NewCustomCharaButton(Vector2 size)
         {
-            if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), size, "添加指定角色", false, true))
+            if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), size, "Add Custom Character", false, true))
             {
                 ImGui.OpenPopup("AddCustomCharaContext");
             }
@@ -199,13 +199,13 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
             {
                 if (ImGui.BeginPopup("AddCustomCharaContext", ImGuiWindowFlags.AlwaysAutoResize))
                 {
-                    ImGui.TextColored(ImGuiColors.DalamudYellow, "添加指定角色");
+                    ImGui.TextColored(ImGuiColors.DalamudYellow, "Add a specific character");
                     ImGui.Separator();
 
-                    var worldRow = Worlds.FirstOrNull(w => w.IsPublic && !w.Name.IsEmpty && w.Region == 2 && w.RowId == customWorld);
-                    if (ImGui.BeginCombo("##指定角色服务器", worldRow != null ? worldRow?.Name.ToString() : "请选择服务器", ImGuiComboFlags.HeightLarge))
+                    var worldRow = Worlds.FirstOrNull(w => w.IsPublic && !w.Name.IsEmpty && w.RowId == customWorld);
+                    if (ImGui.BeginCombo("##Specify World", worldRow != null ? worldRow?.Name.ToString() : "Select a World", ImGuiComboFlags.HeightLarge))
                     {
-                        foreach (var world in Worlds.Where(w => w.IsPublic && !w.Name.IsEmpty && w.Region == 2))
+                        foreach (var world in Worlds.Where(w => w.IsPublic && !w.Name.IsEmpty))
                         {
                             if (ImGui.Selectable($"{world.Name} ({world.RowId})",
                                                  world.RowId == customWorld))
@@ -233,7 +233,7 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
                         }
                     }
 
-                    ImGui.InputTextWithHint("##指定角色名", "角色名", ref customName, 100);
+                    ImGui.InputTextWithHint("##CharacterName", "Character Name", ref customName, 100);
                         
                     ImGui.EndPopup();
                 }
@@ -245,7 +245,7 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
             const string newFolderName = "folderName";
 
             if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.FolderPlus.ToIconString(), size,
-                                             "创建目录", false, true))
+                                             "New Folder", false, true))
                 ImGui.OpenPopup(newFolderName);
 
             Folder? folder = null;
@@ -263,7 +263,7 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
 
         private void DeleteCharaConfig(Leaf leaf)
         {
-            if (ImGui.Selectable("移除")) {
+            if (ImGui.Selectable("Delete")) {
                 var world = leaf.Value.World;
                 var name = leaf.Value.Name;
                 if (C.TryGetCharacterConfig(name, world, out var characterConfig))

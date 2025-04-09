@@ -1,0 +1,30 @@
+[
+  {
+    "Author": "keifufu",
+    "Name": "Fake Name",
+    "InternalName": "FakeName",
+    "Description": "Change your and other peoples names in various UI elements!",
+    "ApplicableVersion": "any",
+    "RepoUrl": "https://github.com/keifufu/FakeName",
+    "Tags": [
+      "name",
+      "ui"
+    ],
+    "CategoryTags": [
+      "ui"
+    ],
+    "DalamudApiLevel": 10,
+    "LoadRequiredState": 0,
+    "LoadSync": false,
+    "CanUnloadAsync": false,
+    "LoadPriority": 0,
+    "IconUrl": "https://raw.githubusercontent.com/keifufu/FakeName/main/icon.png",
+    "Punchline": "Show a fake name on your game ui.",
+    "AcceptsFeedback": true,
+    "DownloadLinkInstall": "",
+    "AssemblyVersion": "0.0.0.0",
+    "DownloadLinkUpdate": "",
+    "DownloadCount": 1,
+    "Changelog": "- Updated for 7.2/API12/NET9\n- Added Chat Support"
+  }
+]

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Dalamud.NET.Sdk/12.0.2">
     <PropertyGroup>
-        <Version>1.7.0.1</Version>
+        <Version>0.1.0.0</Version>
     </PropertyGroup>
 
     <PropertyGroup>
-        <TargetFramework>net8.0-windows</TargetFramework>
+        <TargetFramework>net9.0-windows</TargetFramework>
         <Platforms>x64</Platforms>
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
@@ -13,67 +13,10 @@
         <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-        <OutputPath>bin\</OutputPath>
     </PropertyGroup>
-
-    <PropertyGroup>
-        <DalamudLibPath>$(appdata)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
-        <!--<DevPluginsPath>G:\FFXIV\Dalamud Related\_devPlugins\</DevPluginsPath>
-        <PluginsRepoPath>D:\DalamudProj\DalamudPlugins\plugins\</PluginsRepoPath>-->
-    </PropertyGroup>
-
-    <!--<Target Name="CopyCustomContent" AfterTargets="DefaultDalamudPackagerRelease">
-        <ItemGroup>
-            <PluginDevFiles Include="bin/**" Exclude="bin/$(ProjectName)/**" />
-        </ItemGroup>
-        <ItemGroup>
-            <PluginPubFiles Include="bin\$(ProjectName)\**" />
-        </ItemGroup>
-        <Copy SourceFiles="@(PluginDevFiles)" DestinationFolder="$(DevPluginsPath)$(ProjectName)\"/>
-        <Copy SourceFiles="@(PluginPubFiles)" DestinationFolder="$(PluginsRepoPath)$(ProjectName)\" />
-    </Target>-->
 
     <ItemGroup>
         <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
         <ProjectReference Include="..\OtterGui\OtterGui.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="DalamudPackager" Version="2.1.13"  MakeZip="true" />
-        <Reference Include="FFXIVClientStructs">
-            <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
-            <Private>false</Private>
-        </Reference>
-        <Reference Include="Newtonsoft.Json">
-            <HintPath>$(DalamudLibPath)Newtonsoft.Json.dll</HintPath>
-            <Private>false</Private>
-        </Reference>
-        <Reference Include="Dalamud">
-            <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
-            <Private>false</Private>
-        </Reference>
-        <Reference Include="ImGui.NET">
-            <HintPath>$(DalamudLibPath)ImGui.NET.dll</HintPath>
-            <Private>false</Private>
-        </Reference>
-        <Reference Include="ImGuiScene">
-            <HintPath>$(DalamudLibPath)ImGuiScene.dll</HintPath>
-            <Private>false</Private>
-        </Reference>
-        <Reference Include="Lumina">
-            <HintPath>$(DalamudLibPath)Lumina.dll</HintPath>
-            <Private>false</Private>
-        </Reference>
-        <Reference Include="Lumina.Excel">
-            <HintPath>$(DalamudLibPath)Lumina.Excel.dll</HintPath>
-            <Private>false</Private>
-        </Reference>
-
-
-
-    </ItemGroup>
-
-
-
-
 </Project>

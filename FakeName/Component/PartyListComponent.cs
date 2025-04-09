@@ -83,12 +83,13 @@ public class PartyListComponent : IDisposable
         {
             var nodeText = memberStruct.Name->NodeText.ToString();
             var nameNode = memberStruct.Name;
-            // Service.Log.Debug($"partyList文本 {nodeText}");
-            var match = Regex.Match(nodeText, "^(?:.*级\\s)?(?:\u0002\u0012\u0002Y\u0003)?\\s?(.*?)(?:\u0002\u001a\u0002\u0001\u0003)?$");
+            // Svc.Log.Debug($"partyList文本 {nodeText}");
+            // var match = Regex.Match(nodeText, "^(?:.*级\\s)?(?:\u0002\u0012\u0002Y\u0003)?\\s?(.*?)(?:\u0002\u001a\u0002\u0001\u0003)?$");
+            var match = Regex.Match(nodeText, @"^([^ ]+) (.*)");
             if (match.Success)
             {
-                var memberName = match.Groups[1].Value;
-                // Service.Log.Debug($"匹配到文本 [{memberName}]");
+                var memberName = match.Groups[2].Value;
+                // Svc.Log.Debug($"匹配到文本 [{memberName}]");
                 if (memberName.Equals(localPlayer.Name.TextValue))
                 {
                     ReplaceSelf(memberName, localPlayer.HomeWorld.RowId, nameNode);

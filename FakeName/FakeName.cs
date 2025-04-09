@@ -28,6 +28,7 @@ public class FakeName : IDalamudPlugin
     public OtterGuiHandler OtterGuiHandler;
     
     public AtkTextNodeSetTextHook AtkTextNodeSetTextHook;
+    public ChatMessage ChatMessage;
     // public SetNamePlateHook SetNamePlateHook;
     public UpdateNamePlateHook UpdateNamePlateHook;
     public UpdateNamePlateNpcHook UpdateNamePlateNpcHook;
@@ -64,6 +65,7 @@ public class FakeName : IDalamudPlugin
             TargetInfoComponent = new();
             PartyListComponent = new();
             AtkTextNodeSetTextHook = new();
+            ChatMessage = new();
             // SetNamePlateHook = new();
             UpdateNamePlateHook = new(DutyComponent);
             UpdateNamePlateNpcHook = new();
@@ -117,11 +119,11 @@ public class FakeName : IDalamudPlugin
         
         Safe(()=>IpcProcessor.Dispose());
         
-        // this.ChatMessage.Dispose();
         // Safe(()=>SetNamePlateHook.Dispose());
         Safe(()=>UpdateNamePlateHook.Dispose());
         Safe(()=>UpdateNamePlateNpcHook.Dispose());
         Safe(()=>AtkTextNodeSetTextHook.Dispose());
+        Safe(()=>ChatMessage.Dispose());
         
         Safe(()=>DutyComponent.Dispose());
         Safe(()=>TargetInfoComponent.Dispose());

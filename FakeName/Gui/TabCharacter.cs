@@ -46,17 +46,17 @@ internal class TabCharacter
 
         // IconId
         var iconReplace = characterConfig.IconReplace;
-        if (ImGui.Checkbox("##替换图标Id", ref iconReplace))
+        if (ImGui.Checkbox("##Replace Icon Id", ref iconReplace))
         {
             characterConfig.IconReplace = iconReplace;
             change = true;
         }
 
-        if (ImGui.IsItemHovered()) ImGui.SetTooltip("替换图标Id");
+        if (ImGui.IsItemHovered()) ImGui.SetTooltip("Replace Icon Id");
         ImGui.SameLine();
         ImGui.SetCursorPosX(50);
         var iconId = characterConfig.IconId;
-        if (ImGui.InputInt("图标Id", ref iconId))
+        if (ImGui.InputInt("Icon Id", ref iconId))
         {
             characterConfig.IconId = iconId;
             change = true;
@@ -65,7 +65,7 @@ internal class TabCharacter
         // Name
         ImGui.SetCursorPosX(50);
         var fakeName = characterConfig.FakeNameText;
-        if (ImGui.InputText("角色名", ref fakeName, 100))
+        if (ImGui.InputTextWithHint("##Name", "Name", ref fakeName, 100))
         {
             characterConfig.FakeNameText = fakeName;
             change = true;
@@ -73,17 +73,17 @@ internal class TabCharacter
 
         // FcName
         var hideFcName = characterConfig.HideFcName;
-        if (ImGui.Checkbox("##隐藏部队简称", ref hideFcName))
+        if (ImGui.Checkbox("##FcName", ref hideFcName))
         {
             characterConfig.HideFcName = hideFcName;
             change = true;
         }
 
-        if (ImGui.IsItemHovered()) ImGui.SetTooltip("隐藏部队简称");
+        if (ImGui.IsItemHovered()) ImGui.SetTooltip("Replace Company Name");
         ImGui.SameLine();
         ImGui.SetCursorPosX(50);
         var fakeFcName = characterConfig.FakeFcNameText;
-        if (ImGui.InputText("部队简称", ref fakeFcName, 100))
+        if (ImGui.InputTextWithHint("##FreeCompanyName", "Free Company Name", ref fakeFcName, 100))
         {
             characterConfig.FakeFcNameText = fakeFcName;
             change = true;

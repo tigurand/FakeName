@@ -54,8 +54,8 @@ public class FakeName : IDalamudPlugin
             IpcDataManager = new();
             
             EzConfigGui.Init(UI.Draw);
-            EzCmd.Add("/fakename", EzConfigGui.Open, "打开FakeName");
-            EzCmd.Add("/fn", EzConfigGui.Open, "打开FakeName");
+            EzCmd.Add("/fakename", EzConfigGui.Open, "Open FakeName Configuration");
+            EzCmd.Add("/fn", EzConfigGui.Open, "Alias for /fakename");
             OtterGuiHandler = new();
 
             // 尝试修复节点

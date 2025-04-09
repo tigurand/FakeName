@@ -96,7 +96,7 @@ public class UpdateNamePlateHook : IDisposable
                 namePlateInfo->FcName.SetString("");
                 changed = true;
             }
-            else if (character.CurrentWorld.RowId == character.HomeWorld.RowId && !dutyComponent.InDuty && character.CompanyTag.TextValue.Length > 0)
+            else if (/* character.CurrentWorld.RowId == character.HomeWorld.RowId &&  */!dutyComponent.InDuty && character.CompanyTag.TextValue.Length > 0)
             {
                 var newFcName = characterConfig.FakeFcNameText.Length > 0 ? $" «{characterConfig.FakeFcNameText}»" : $" «{character.CompanyTag.TextValue}»";
                 if (!namePlateInfo->FcName.ToString().Equals(newFcName))

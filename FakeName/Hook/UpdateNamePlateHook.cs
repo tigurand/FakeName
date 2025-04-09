@@ -103,15 +103,16 @@ public class UpdateNamePlateHook : IDisposable
                     var c = (Character*)character.Address;
                     var newFcName = characterConfig.FakeFcNameText.Length > 0
                       ? $" «{characterConfig.FakeFcNameText}»" 
-                      : character.CompanyTag.TextValue.Length == 0
+                      : character.CompanyTag.TextValue.Length > 0
+                        : $" «{character.CompanyTag.TextValue}»"
                         ? c->IsWanderer()
                           ? " «Wanderer»"
                           : c->IsTraveler()
                             ? " «Traveler»"
                             : c->IsVoyager()
                               ? " «Voyager»"
-                              : ""
-                        : $" «{character.CompanyTag.TextValue}»";
+                              : "";
+
                     if (!namePlateInfo->FcName.ToString().Equals(newFcName))
                     {
                         //Service.Log.Debug($"替换了部队简称：{namePlateInfo->FcName}->{newFcName} tag:{Service.ClientState.TerritoryType} duty:{Service.DutyState.IsDutyStarted}");

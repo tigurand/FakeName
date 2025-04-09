@@ -6,6 +6,7 @@ on:
 env:
   GH_TOKEN: ${{ github.token }}
   ASSEMBLY_VERSION:
+  API_LEVEL:
 
 jobs:
   build:
@@ -26,10 +27,12 @@ jobs:
           unzip latest.zip -d ~/.xlcore/dalamud/Hooks/dev/
       - name: Build with dotnet
         run: dotnet build --configuration Release -p:DalamudLibPath=$HOME/.xlcore/dalamud/Hooks/dev/ -p:EnableWindowsTargeting=true
-      - name: read version
+      - name: read fakename.json
         run: |
           VERSION=$(jq -r '.AssemblyVersion' ./FakeName/bin/Release/FakeName/FakeName.json)
+          API_LEVEL=$(jq -r '.DalamudApiLevel' ./FakeName/bin/Release/FakeName/FakeName.json)
           echo "ASSEMBLY_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "API_LEVEL=$API_LEVEL" >> $GITHUB_ENV
       - name: update repo.json
         run: |
           echo TODO: env.ASSEMBLY_VERSION into repo.json, and update download and install path
@@ -41,7 +44,8 @@ jobs:
         run: |
           LINK="https://github.com/keifufu/FakeName/releases/download/${{ env.ASSEMBLY_VERSION }}/latest.zip"
           VER="${{ env.ASSEMBLY_VERSION }}"
-          jq --arg link "$LINK" --arg ver "$VER" '(.[0].DownloadLinkInstall) = $link | .[0].DownloadLinkUpdate = $link | .[0].AssemblyVersion = $ver' repo.json > tmp.json && mv tmp.json repo.json
+          API_LEVEL="${{ env.API_LEVEL }}"
+          jq --arg link "$LINK" --arg ver "$VER" --arg apilevel "$API_LEVEL" '(.[0].DownloadLinkInstall) = $link | .[0].DownloadLinkUpdate = $link | .[0].AssemblyVersion = $ver | .[0].DalamudApiLevel = $apilevel' repo.json > tmp.json && mv tmp.json repo.json
       - name: commit changes
         run: |
           git config user.name "Github Actions"

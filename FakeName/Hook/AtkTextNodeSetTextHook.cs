@@ -165,7 +165,7 @@ public class AtkTextNodeSetTextHook
             var charaName = pair.Key;
             var characterConfig = pair.Value;
 
-            if (characterConfig.FakeNameText.Length == 0)
+            if (characterConfig.FakeNameText.Length == 0 || !characterConfig.Enabled)
             {
                 continue;
             }

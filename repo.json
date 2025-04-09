@@ -13,7 +13,7 @@
     "CategoryTags": [
       "ui"
     ],
-    "DalamudApiLevel": 10,
+    "DalamudApiLevel": 12,
     "LoadRequiredState": 0,
     "LoadSync": false,
     "CanUnloadAsync": false,

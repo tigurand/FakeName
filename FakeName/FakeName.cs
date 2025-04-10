@@ -10,158 +10,144 @@ using ECommons.SimpleGui;
 using FakeName.Component;
 using FakeName.Data;
 using FakeName.Gui;
-using FakeName.Hook;
 using FakeName.OtterGuiHandlers;
+using Dalamud.Plugin.Services;
+using Dalamud.IoC;
 
 namespace FakeName;
 
 public class FakeName : IDalamudPlugin
 {
-    public static FakeName P;
-    public static Config C => P.NewConfig;
-    public static IpcDataManager Idm => P.IpcDataManager;
+  public static FakeName P;
+  public static Config C => P.NewConfig;
+  public static IpcDataManager Idm => P.IpcDataManager;
+  [PluginService] public INamePlateGui NameplateGui { get; private set; } = null!;
 
-    public PluginConfig Config;
-    public Config NewConfig;
-    public IpcDataManager IpcDataManager;
-    
-    public OtterGuiHandler OtterGuiHandler;
-    
-    public AtkTextNodeSetTextHook AtkTextNodeSetTextHook;
-    public ChatMessage ChatMessage;
-    // public SetNamePlateHook SetNamePlateHook;
-    public UpdateNamePlateHook UpdateNamePlateHook;
-    public UpdateNamePlateNpcHook UpdateNamePlateNpcHook;
-    
-    public DutyComponent DutyComponent;
-    public TargetInfoComponent TargetInfoComponent;
-    public PartyListComponent PartyListComponent;
+  public PluginConfig Config;
+  public Config NewConfig;
+  public IpcDataManager IpcDataManager;
+  
+  public OtterGuiHandler OtterGuiHandler;
+  
+  public AtkTextNodeC AtkTextNodeC;
+  public ChatMessage ChatMessage;
+  public Nameplate Nameplate;
+  public PartyList PartyList;
+  public TargetListInfo TargetListInfo;
 
-    public IpcProcessor IpcProcessor;
+  public IpcProcessor IpcProcessor;
 
-    public string msg = "null";
+  public string msg = "null";
 
-    public FakeName(IDalamudPluginInterface pi)
+  public FakeName(IDalamudPluginInterface pi)
+  {
+    P = this;
+    ECommonsMain.Init(pi, this);
+
+    _ = new TickScheduler(() =>
     {
-        P = this;
-        ECommonsMain.Init(pi, this);
+      NewConfig = EzConfig.Init<Config>();
+      Config = Svc.PluginInterface.GetPluginConfig() as PluginConfig ?? new PluginConfig();
+      OldConfigMove(Config, NewConfig);
+      IpcDataManager = new();
+      
+      EzConfigGui.Init(UI.Draw);
+      EzCmd.Add("/fakename", EzConfigGui.Open, "Open FakeName Configuration");
+      EzCmd.Add("/fn", EzConfigGui.Open, "Alias for /fakename");
+      OtterGuiHandler = new();
 
-        _ = new TickScheduler(() =>
-        {
-            NewConfig = EzConfig.Init<Config>();
-            Config = Svc.PluginInterface.GetPluginConfig() as PluginConfig ?? new PluginConfig();
-            OldConfigMove(Config, NewConfig);
-            IpcDataManager = new();
-            
-            EzConfigGui.Init(UI.Draw);
-            EzCmd.Add("/fakename", EzConfigGui.Open, "Open FakeName Configuration");
-            EzCmd.Add("/fn", EzConfigGui.Open, "Alias for /fakename");
-            OtterGuiHandler = new();
+      RepairFileSystem();
+      
+      AtkTextNodeC = new();
+      ChatMessage = new();
+      Nameplate = new();
+      PartyList = new();
+      TargetListInfo = new();
 
-            // 尝试修复节点
-            RepairFileSystem();
-            
-            DutyComponent = new();
-            TargetInfoComponent = new();
-            PartyListComponent = new();
-            AtkTextNodeSetTextHook = new();
-            ChatMessage = new();
-            // SetNamePlateHook = new();
-            UpdateNamePlateHook = new(DutyComponent);
-            UpdateNamePlateNpcHook = new();
-            IpcProcessor = new();
+      IpcProcessor = new();
+    });
+  }
 
-        });
-    }
-
-    public void OldConfigMove(PluginConfig oldConfig, Config newConfig)
+  public void OldConfigMove(PluginConfig oldConfig, Config newConfig)
+  {
+    if (oldConfig.WorldCharacterDictionary.Count > 0)
     {
-        if (oldConfig.WorldCharacterDictionary.Count > 0)
+      foreach (var (worldId, characters) in P.Config.WorldCharacterDictionary.ToArray())
+      {
+        foreach (var (name, characterConfig) in characters.ToArray())
         {
-            foreach (var (worldId, characters) in P.Config.WorldCharacterDictionary.ToArray())
-            {
-                foreach (var (name, characterConfig) in characters.ToArray())
-                {
-                    C.TryAddCharacter(name, worldId, characterConfig);
-                    characters.Remove(name);
-                    if (characters.Count == 0) {
-                        P.Config.WorldCharacterDictionary.Remove(worldId);
-                    }
-                }
-            }
+          C.TryAddCharacter(name, worldId, characterConfig);
+          characters.Remove(name);
+          if (characters.Count == 0) {
+            P.Config.WorldCharacterDictionary.Remove(worldId);
+          }
         }
-        
-        foreach (var (_, characters) in C.WorldCharacterDictionary.ToArray())
-        {
-            foreach (var (_, characterConfig) in characters.ToArray())
-            {
-                C.Characters.Add(characterConfig);
-            }
-        }
-    }
-
-    public void RepairFileSystem()
-    {
-        foreach (var characterConfig in C.Characters)
-        {
-            var fs = P.OtterGuiHandler.FakeNameFileSystem;
-
-            if (!fs.FindLeaf(characterConfig, out var leaf))
-            {
-                fs.CreateLeaf(fs.Root, fs.ConvertToName(characterConfig), characterConfig);
-                PluginLog.Debug($"CreateLeaf {characterConfig.Name}({characterConfig.World}) {leaf==null}");
-            }
-        }
-    }
-
-    public void Dispose()
-    {
-        
-        Safe(()=>IpcProcessor.Dispose());
-        
-        // Safe(()=>SetNamePlateHook.Dispose());
-        Safe(()=>UpdateNamePlateHook.Dispose());
-        Safe(()=>UpdateNamePlateNpcHook.Dispose());
-        Safe(()=>AtkTextNodeSetTextHook.Dispose());
-        Safe(()=>ChatMessage.Dispose());
-        
-        Safe(()=>DutyComponent.Dispose());
-        Safe(()=>TargetInfoComponent.Dispose());
-        Safe(()=>PartyListComponent.Dispose());
-        
-        Safe(()=>OtterGuiHandler.Dispose());
-        
-        
-        //this.NamePlates.Dispose();
-        //this.Common.Dispose();
-        ECommonsMain.Dispose();
-        P = null;
-    }
-
-    public static string IncognitoModeName(string name)
-    {
-        if (!C.IncognitoMode)
-        {
-            return name;
-        }
-        else
-        {
-            return name.Substring(0, 1) + "...";
-        }
+      }
     }
     
-    public bool TryGetConfig(string name, uint world, [MaybeNullWhen(false)] out CharacterConfig characterConfig) {
-        if (Idm.TryGetCharacterConfig(name, world, out characterConfig))
-        {
-            PluginLog.Debug($"找到了{characterConfig.Name}的ipc配置：");
-            return characterConfig.Enabled;
-        }
-
-        if (C.TryGetCharacterConfig(name, world, out characterConfig))
-        {
-            return characterConfig.Enabled;
-        }
-
-        return false;
+    foreach (var (_, characters) in C.WorldCharacterDictionary.ToArray())
+    {
+      foreach (var (_, characterConfig) in characters.ToArray())
+      {
+        C.Characters.Add(characterConfig);
+      }
     }
+  }
+
+  public void RepairFileSystem()
+  {
+    foreach (var characterConfig in C.Characters)
+    {
+      var fs = P.OtterGuiHandler.FakeNameFileSystem;
+
+      if (!fs.FindLeaf(characterConfig, out var leaf))
+      {
+        fs.CreateLeaf(fs.Root, fs.ConvertToName(characterConfig), characterConfig);
+        PluginLog.Debug($"CreateLeaf {characterConfig.Name}({characterConfig.World}) {leaf==null}");
+      }
+    }
+  }
+
+  public void Dispose()
+  {
+    Safe(()=>IpcProcessor.Dispose());
+    
+    Safe(()=>AtkTextNodeC.Dispose());
+    Safe(()=>ChatMessage.Dispose());
+    Safe(()=>Nameplate.Dispose());
+    Safe(()=>PartyList.Dispose());
+    Safe(()=>TargetListInfo.Dispose());
+    
+    Safe(()=>OtterGuiHandler.Dispose());
+    
+    ECommonsMain.Dispose();
+    P = null;
+  }
+
+  public static string IncognitoModeName(string name)
+  {
+    if (!C.IncognitoMode)
+    {
+      return name;
+    }
+    else
+    {
+      return name.Substring(0, 1) + "...";
+    }
+  }
+  
+  public bool TryGetConfig(string name, uint world, [MaybeNullWhen(false)] out CharacterConfig characterConfig, bool ignoreEnabled = false) {
+    if (Idm.TryGetCharacterConfig(name, world, out characterConfig))
+    {
+      // PluginLog.Debug($"找到了{characterConfig.Name}的ipc配置：");
+      return ignoreEnabled ? true : characterConfig.Enabled;
+    }
+
+    if (C.TryGetCharacterConfig(name, world, out characterConfig))
+    {
+      return ignoreEnabled ? true : characterConfig.Enabled;
+    }
+
+    return false;
+  }
 }

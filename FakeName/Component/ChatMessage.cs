@@ -5,7 +5,7 @@ using Dalamud.Game.Text.SeStringHandling.Payloads;
 using ECommons.DalamudServices;
 using System.Collections.Generic;
 
-namespace FakeName.Hook;
+namespace FakeName.Component;
 
 public class ChatMessage : IDisposable
 {
@@ -41,7 +41,7 @@ public class ChatMessage : IDisposable
     }
 
     // Svc.Log.Debug($"{text.ToString()}");
-    bool setNextTextPayload = false;
+    string nextTextPayloadToReplace = "";
     string nextTextPayloadText = "";
     for (int i = 0; i < text.Payloads.Count; i++) {
       var p = text.Payloads[i];
@@ -50,13 +50,12 @@ public class ChatMessage : IDisposable
         // Svc.Log.Debug($"[PLAYER]    - {i.ToString()}: {p.ToString()}");
         if (P.TryGetConfig(playerPayload.PlayerName, playerPayload.World.RowId, out var characterConfig)) {
           nextTextPayloadText = characterConfig.FakeNameText;
-          setNextTextPayload = true;
+          nextTextPayloadToReplace = playerPayload.PlayerName;
         }
       } else if (p.Type == PayloadType.RawText) {
         var textPayload = (TextPayload)p;
-        if (setNextTextPayload) {
+        if (nextTextPayloadToReplace == textPayload.Text) {
           textPayload.Text = nextTextPayloadText;
-          setNextTextPayload = false;
         } else if (textPayload.Text == localCharaName) {
           textPayload.Text = localCharaReplace;
         }

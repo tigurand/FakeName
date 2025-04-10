@@ -10,117 +10,115 @@ namespace FakeName;
 
 public class IpcProcessor : IDisposable
 {
-    public const uint MajorVersion = 2;
-    public const uint MinorVersion = 1;
-    
-    [EzIPCEvent]
-    readonly Action Ready;
+  public const uint MajorVersion = 2;
+  public const uint MinorVersion = 1;
+  
+  [EzIPCEvent]
+  readonly Action Ready;
 
-    [EzIPCEvent]
-    readonly Action Disposing;
-    
-    [EzIPCEvent]
-    public readonly Action<string> LocalCharacterDataChanged;
+  [EzIPCEvent]
+  readonly Action Disposing;
+  
+  [EzIPCEvent]
+  public readonly Action<string> LocalCharacterDataChanged;
 
-    public IpcProcessor()
+  public IpcProcessor()
+  {
+    EzIPC.Init(this);
+    NotifyReady();
+  }
+
+  public void Dispose()
+  {
+    NotifyDisposing();
+  }
+
+  [EzIPC("ApiVersion")]
+  (uint, uint) ApiVersion()
+  {
+    return (MajorVersion, MinorVersion);
+  }
+
+
+  [EzIPC("GetLocalCharacterData")]
+  string GetLocalCharacterData()
+  {
+    var player = Svc.ClientState.LocalPlayer;
+    if (player == null)
     {
-        EzIPC.Init(this);
-        NotifyReady();
+      return string.Empty;
     }
 
-    public void Dispose()
+    if (!C.Enabled)
     {
-        NotifyDisposing();
+      return string.Empty;
     }
 
-    [EzIPC("ApiVersion")]
-    (uint, uint) ApiVersion()
+    if (!C.TryGetCharacterConfig(player.Name.TextValue, player.HomeWorld.RowId, out var characterConfig))
     {
-        return (MajorVersion, MinorVersion);
+      return string.Empty;
     }
 
+    return JsonConvert.SerializeObject((CharacterData)characterConfig);
+  }
 
-    [EzIPC("GetLocalCharacterData")]
-    string GetLocalCharacterData()
+  [EzIPC("ClearCharacterData")]
+  void ClearCharacterData(ICharacter character)
+  {
+    if (character is not IPlayerCharacter playerCharacter) return;
+    var world = playerCharacter.HomeWorld.RowId;
+    var name = playerCharacter.Name.TextValue;
+    if (Idm.TryGetCharacterConfig(name, world, out var characterConfig))
     {
-        var player = Svc.ClientState.LocalPlayer;
-        if (player == null)
-        {
-            return string.Empty;
-        }
-
-        if (!C.Enabled)
-        {
-            return string.Empty;
-        }
-
-        if (!C.TryGetCharacterConfig(player.Name.TextValue, player.HomeWorld.RowId, out var characterConfig))
-        {
-            return string.Empty;
-        }
-
-        return JsonConvert.SerializeObject((CharacterData)characterConfig);
+      if (Idm.TryGetWorldDic(world, out var worldDic))
+      {
+        worldDic.Remove(name);
+      }
     }
-
-    [EzIPC("ClearCharacterData")]
-    void ClearCharacterData(ICharacter character)
+  }
+  
+  [EzIPC]
+  void SetCharacterData(ICharacter character, string dataJson)
+  {
+    try
     {
-        if (character is not IPlayerCharacter playerCharacter) return;
-        var world = playerCharacter.HomeWorld.RowId;
-        var name = playerCharacter.Name.TextValue;
-        if (Idm.TryGetCharacterConfig(name, world, out var characterConfig))
-        {
-            if (Idm.TryGetWorldDic(world, out var worldDic))
-            {
-                worldDic.Remove(name);
-            }
-        }
+      if (character is not IPlayerCharacter playerCharacter) return;
+      ClearCharacterData(character);
+  
+      if (dataJson == string.Empty)
+      {
+        return;
+      }
+  
+      var titleData = JsonConvert.DeserializeObject<CharacterData>(dataJson);
+      if (titleData == null)
+      {
+        return;
+      }
+  
+      var world = playerCharacter.HomeWorld.RowId;
+      var name = playerCharacter.Name.TextValue;
+      Idm.AddOrUpdCharacter(name, world, titleData);
     }
-    
-    [EzIPC]
-    void SetCharacterData(ICharacter character, string dataJson)
+    catch (Exception e)
     {
-        try
-        {
-            if (character is not IPlayerCharacter playerCharacter) return;
-            ClearCharacterData(character);
-        
-            if (dataJson == string.Empty)
-            {
-                return;
-            }
-        
-            var titleData = JsonConvert.DeserializeObject<CharacterData>(dataJson);
-            if (titleData == null)
-            {
-                return;
-            }
-        
-            var world = playerCharacter.HomeWorld.RowId;
-            var name = playerCharacter.Name.TextValue;
-            Idm.AddOrUpdCharacter(name, world, titleData);
-        }
-        catch (Exception e)
-        {
-            e.Log();
-        }
+      e.Log();
     }
-    
-    public void ChangedLocalCharacterData(CharacterConfig? characterConfig) {
-        var json = characterConfig == null? string.Empty : JsonConvert.SerializeObject((CharacterData)characterConfig);
-        LocalCharacterDataChanged(json);
-    }
+  }
+  
+  public void ChangedLocalCharacterData(CharacterConfig? characterConfig) {
+    var json = characterConfig == null? string.Empty : JsonConvert.SerializeObject((CharacterData)characterConfig);
+    LocalCharacterDataChanged(json);
+  }
 
-    public void NotifyReady()
-    {
-        Ready();
-    }
+  public void NotifyReady()
+  {
+    Ready();
+  }
 
-    public void NotifyDisposing()
-    {
-        ChangedLocalCharacterData(null);
-        Disposing();
-    }
-    
-    
+  public void NotifyDisposing()
+  {
+    ChangedLocalCharacterData(null);
+    Disposing();
+  }
 }

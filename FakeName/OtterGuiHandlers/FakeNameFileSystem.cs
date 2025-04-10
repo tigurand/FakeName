@@ -27,328 +27,324 @@ namespace FakeName.OtterGuiHandlers;
 
 public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposable
 {
-    string FilePath = Path.Combine(Svc.PluginInterface.ConfigDirectory.FullName, "FakeNameFileSystem.json");
-    public readonly FakeNameFileSystem.FileSystemSelector Selector;
-    public FakeNameFileSystem(OtterGuiHandler h)
+  string FilePath = Path.Combine(Svc.PluginInterface.ConfigDirectory.FullName, "FakeNameFileSystem.json");
+  public readonly FakeNameFileSystem.FileSystemSelector Selector;
+  public FakeNameFileSystem(OtterGuiHandler h)
+  {
+    EzConfig.OnSave += Save;
+    try
     {
-        EzConfig.OnSave += Save;
+      var info = new FileInfo(FilePath);
+      if (info.Exists)
+      {
+        this.Load(info, C.Characters, ConvertToIdentifier, ConvertToName);
+      }
+      Selector = new(this, h);
+    }
+    catch (Exception e)
+    {
+      e.Log();
+    }
+  }
+
+  public void Dispose()
+  {
+    EzConfig.OnSave -= Save;
+  }
+
+  public void DoDelete(CharacterConfig characterConfig)
+  {
+    PluginLog.Debug($"Deleting {characterConfig.Id}");
+    C.Characters.Remove(characterConfig);
+    if(FindLeaf(characterConfig, out var leaf))
+    {
+      this.Delete(leaf);
+    }
+    this.Save();
+  }
+
+  public bool FindLeaf(CharacterConfig characterConfig, [MaybeNullWhen(false)] out Leaf leaf)
+  {
+    leaf = Root.GetAllDescendants(ISortMode<CharacterConfig>.Lexicographical)
+      .OfType<Leaf>()
+      .FirstOrDefault(l => l.Value == characterConfig);
+    return leaf != null;
+  }
+
+  public bool TryGetPathById(Guid id, [MaybeNullWhen(false)] out string path)
+  {
+    if (FindLeaf(C.Characters.FirstOrDefault(x => x.Guid == id), out var leaf))
+    {
+      path = leaf.FullName();
+      return true;
+    }
+    path = default;
+    return false;
+  }
+
+  public string ConvertToName(CharacterConfig characterConfig)
+  {
+    PluginLog.Debug($"Request conversion of {characterConfig.Id} {characterConfig.World} {characterConfig.Name} to name");
+    return $"{characterConfig.Name}({characterConfig.WorldName()})";
+  }
+
+  private string ConvertToIdentifier(CharacterConfig characterConfig)
+  {
+    PluginLog.Debug($"Request conversion of {characterConfig.Id} {characterConfig.World} {characterConfig.Name} to identifier");
+    return characterConfig.Id;
+  }
+
+  public void Save()
+  {
+    try
+    {
+      using var fileStream = new FileStream(FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+      using var streamWriter = new StreamWriter(fileStream);
+      this.SaveToFile(streamWriter, SaveConverter, true);
+    }
+    catch(Exception ex)
+    {
+      ex.Log("Error saving FakeNameFileSystem:");
+    }
+  }
+
+  private (string, bool) SaveConverter(CharacterConfig characterConfig, string arg2)
+  {
+    PluginLog.Debug($"Saving {characterConfig.Id} {characterConfig.World} {characterConfig.Name}");
+    return (characterConfig.Id, true);
+  }
+
+  public class FileSystemSelector : FileSystemSelector<CharacterConfig, FileSystemSelector.State>
+  {
+    string newName = "";
+    string clipboardText = null;
+    string forderName = string.Empty;
+    CharacterConfig cloneConfig = null;
+    string customName = string.Empty;
+    uint customWorld;
+    public override ISortMode<CharacterConfig> SortMode => ISortMode<CharacterConfig>.FoldersFirst;
+    static FakeNameFileSystem Fs => P.OtterGuiHandler.FakeNameFileSystem;
+    static ExcelSheet<World>? Worlds => Svc.Data.GetExcelSheet<World>();
+    public FileSystemSelector(FakeNameFileSystem fs, OtterGuiHandler h) : base(fs, Svc.KeyState, h.Logger, (e) => e.Log())
+    {
+      AddButton(NewLocalCharaButton, 0);
+      AddButton(NewTargetCharaButton, 1);
+      AddButton(NewCustomCharaButton, 2);
+
+      RemoveButton(FolderAddButton);
+      AddButton(NewFolderButton, 3);
+      // AddButton(ImportButton, 10);
+      // AddButton(CopyToClipboardButton, 20);
+      // AddButton(DeleteButton, 1000);
+
+      UnsubscribeRightClickLeaf(RenameLeaf);
+      SubscribeRightClickLeaf(DeleteCharaConfig);
+    }
+
+    protected override uint CollapsedFolderColor => ImGuiColors.DalamudViolet.ToUint();
+    protected override uint ExpandedFolderColor => CollapsedFolderColor;
+
+    protected override void DrawLeafName(Leaf leaf, in State state, bool selected)
+    {
+      var flag = selected ? ImGuiTreeNodeFlags.Selected | LeafFlags : LeafFlags;
+      using var _ = ImRaii.TreeNode( $"{leaf.Value.IncognitoName()}                                         ", flag);
+    }
+
+    private void NewLocalCharaButton(Vector2 size)
+    {
+      if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.User.ToIconString(), size, "Add Local Character", false, true))
+      {
+        if (Svc.ClientState.LocalPlayer != null) {
+          var name = Svc.ClientState.LocalPlayer.Name.TextValue;
+          var world = Svc.ClientState.LocalPlayer.HomeWorld.RowId;
+          if (C.TryAddCharacter(name, world))
+          {
+            if (C.TryGetCharacterConfig(name, world, out var characterConfig))
+            {
+              C.Characters.Add(characterConfig);
+              Fs.CreateLeaf(Fs.Root, Fs.ConvertToName(characterConfig), characterConfig);
+            }
+          }
+        }
+      }
+    }
+
+    private void NewTargetCharaButton(Vector2 size)
+    {
+      if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.DotCircle.ToIconString(), size, "Add Target Character", false, true))
+      {
+        if (Svc.Targets.Target is IPlayerCharacter pc) {
+          var name = pc.Name.TextValue;
+          var world = pc.HomeWorld.RowId;
+          if (C.TryAddCharacter(name, world))
+          {
+            if (C.TryGetCharacterConfig(name, world, out var characterConfig))
+            {
+              C.Characters.Add(characterConfig);
+              Fs.CreateLeaf(Fs.Root, Fs.ConvertToName(characterConfig), characterConfig);
+            }
+          }
+        }
+      }
+    }
+
+    private void NewCustomCharaButton(Vector2 size)
+    {
+      if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), size, "Add Custom Character", false, true))
+      {
+        ImGui.OpenPopup("AddCustomCharaContext");
+      }
+      if (Worlds != null)
+      {
+        if (ImGui.BeginPopup("AddCustomCharaContext", ImGuiWindowFlags.AlwaysAutoResize))
+        {
+          ImGui.TextColored(ImGuiColors.DalamudYellow, "Add a specific character");
+          ImGui.Separator();
+
+          var worldRow = Worlds.FirstOrNull(w => w.IsPublic && !w.Name.IsEmpty && w.RowId == customWorld);
+          if (ImGui.BeginCombo("##Specify World", worldRow != null ? worldRow?.Name.ToString() : "Select a World", ImGuiComboFlags.HeightLarge))
+          {
+            foreach (var world in Worlds.Where(w => w.IsPublic && !w.Name.IsEmpty))
+            {
+              if (ImGui.Selectable($"{world.Name} ({world.RowId})", world.RowId == customWorld))
+              {
+                customWorld = world.RowId;
+              }
+            }
+                
+            ImGui.EndCombo();
+          }
+              
+          ImGui.SameLine();
+          if (ImGuiComponents.IconButton("AddCustomChara", FontAwesomeIcon.Plus))
+          {
+            if (customWorld != 0)
+            {
+              if (C.TryAddCharacter(customName, customWorld))
+              {
+                if (C.TryGetCharacterConfig(customName, customWorld, out var characterConfig))
+                {
+                  C.Characters.Add(characterConfig);
+                  Fs.CreateLeaf(Fs.Root, Fs.ConvertToName(characterConfig), characterConfig);
+                }
+              }
+            }
+          }
+
+          ImGui.InputTextWithHint("##CharacterName", "Character Name", ref customName, 100);
+              
+          ImGui.EndPopup();
+        }
+      }
+    }
+      
+    protected void NewFolderButton(Vector2 size)
+    {
+      const string newFolderName = "folderName";
+
+      if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.FolderPlus.ToIconString(), size, "New Folder", false, true))
+        ImGui.OpenPopup(newFolderName);
+
+      Folder? folder = null;
+      if (ImGuiUtil.OpenNameField(newFolderName, ref forderName) && forderName.Length > 0)
         try
         {
-            var info = new FileInfo(FilePath);
-            if (info.Exists)
+            folder   = FileSystem.FindOrCreateAllFolders(forderName);
+            forderName = string.Empty;
+        }
+        catch
+        {
+            // Ignored
+        }
+    }
+
+    private void DeleteCharaConfig(Leaf leaf)
+    {
+      if (ImGui.Selectable("Delete")) {
+        var world = leaf.Value.World;
+        var name = leaf.Value.Name;
+        if (C.TryGetCharacterConfig(name, world, out var characterConfig))
+        {
+          if (C.TryGetWorldDic(world, out var worldDic))
+          {
+            if (worldDic.Remove(name))
             {
-                this.Load(info, C.Characters, ConvertToIdentifier, ConvertToName);
+              Fs.DoDelete(characterConfig);
+              C.Characters.Remove(characterConfig);
+
+              if (worldDic.Count == 0)
+              {
+                C.WorldCharacterDictionary.Remove(world);
+              }
             }
-            Selector = new(this, h);
+          }
+        }
+      }
+    }
+
+    private void DrawNewMoodlePopup()
+    {
+      if (!ImGuiUtil.OpenNameField("##NewMoodle", ref newName))
+        return;
+
+      if (newName == "")
+      {
+        Notify.Error($"Name can not be empty!");
+        return;
+      }
+
+      if (clipboardText != null)
+      {
+        try
+        {
+          var newCharacterConfig = EzConfig.DefaultSerializationFactory.Deserialize<CharacterConfig>(clipboardText);
+          if (newCharacterConfig != null)
+          {
+            Fs.CreateLeaf(Fs.Root, newName, newCharacterConfig);
+            C.Characters.Add(newCharacterConfig);
+          }
+          else
+          {
+            Notify.Error($"Invalid clipboard data");
+          }
         }
         catch (Exception e)
         {
-            e.Log();
+          e.LogVerbose();
+          Notify.Error($"Error: {e.Message}");
         }
-    }
+      }
+      else if (cloneConfig != null)
+      {
 
-    public void Dispose()
-    {
-        EzConfig.OnSave -= Save;
-    }
-
-    public void DoDelete(CharacterConfig characterConfig)
-    {
-        PluginLog.Debug($"Deleting {characterConfig.Id}");
-        C.Characters.Remove(characterConfig);
-        if(FindLeaf(characterConfig, out var leaf))
-        {
-            this.Delete(leaf);
-        }
-        this.Save();
-    }
-
-    public bool FindLeaf(CharacterConfig characterConfig, [MaybeNullWhen(false)] out Leaf leaf)
-    {
-        leaf = Root.GetAllDescendants(ISortMode<CharacterConfig>.Lexicographical)
-            .OfType<Leaf>()
-            .FirstOrDefault(l => l.Value == characterConfig);
-        return leaf != null;
-    }
-
-    public bool TryGetPathById(Guid id, [MaybeNullWhen(false)] out string path)
-    {
-        if (FindLeaf(C.Characters.FirstOrDefault(x => x.Guid == id), out var leaf))
-        {
-            path = leaf.FullName();
-            return true;
-        }
-        path = default;
-        return false;
-    }
-
-    public string ConvertToName(CharacterConfig characterConfig)
-    {
-        PluginLog.Debug($"Request conversion of {characterConfig.Id} {characterConfig.World} {characterConfig.Name} to name");
-        return $"{characterConfig.Name}({characterConfig.WorldName()})";
-    }
-
-    private string ConvertToIdentifier(CharacterConfig characterConfig)
-    {
-        PluginLog.Debug($"Request conversion of {characterConfig.Id} {characterConfig.World} {characterConfig.Name} to identifier");
-        return characterConfig.Id;
-    }
-
-    public void Save()
-    {
+      }
+      else
+      {
         try
         {
-            using var fileStream = new FileStream(FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
-            using var streamWriter = new StreamWriter(fileStream);
-            this.SaveToFile(streamWriter, SaveConverter, true);
+          var newStatus = new CharacterConfig();
+          Fs.CreateLeaf(Fs.Root, newName, newStatus);
+          C.Characters.Add(newStatus);
         }
-        catch(Exception ex)
+        catch (Exception e)
         {
-            ex.Log("Error saving FakeNameFileSystem:");
+          e.LogVerbose();
+          Notify.Error($"This name already exists!");
         }
+      }
+
+      newName = string.Empty;
     }
 
-    private (string, bool) SaveConverter(CharacterConfig characterConfig, string arg2)
+    protected override void DrawPopups()
     {
-        PluginLog.Debug($"Saving {characterConfig.Id} {characterConfig.World} {characterConfig.Name}");
-        return (characterConfig.Id, true);
+      DrawNewMoodlePopup();
     }
 
-    public class FileSystemSelector : FileSystemSelector<CharacterConfig, FileSystemSelector.State>
+    public record struct State { }
+    protected override bool ApplyFilters(IPath path)
     {
-        string newName = "";
-        string clipboardText = null;
-        string forderName = string.Empty;
-        CharacterConfig cloneConfig = null;
-        string customName = string.Empty;
-        uint customWorld;
-        public override ISortMode<CharacterConfig> SortMode => ISortMode<CharacterConfig>.FoldersFirst;
-        static FakeNameFileSystem Fs => P.OtterGuiHandler.FakeNameFileSystem;
-        static ExcelSheet<World>? Worlds => Svc.Data.GetExcelSheet<World>();
-        public FileSystemSelector(FakeNameFileSystem fs, OtterGuiHandler h) : base(fs, Svc.KeyState, h.Logger, (e) => e.Log())
-        {
-            AddButton(NewLocalCharaButton, 0);
-            AddButton(NewTargetCharaButton, 1);
-            AddButton(NewCustomCharaButton, 2);
-
-            RemoveButton(FolderAddButton);
-            AddButton(NewFolderButton, 3);
-            // AddButton(ImportButton, 10);
-            // AddButton(CopyToClipboardButton, 20);
-            // AddButton(DeleteButton, 1000);
-
-            UnsubscribeRightClickLeaf(RenameLeaf);
-            SubscribeRightClickLeaf(DeleteCharaConfig);
-        }
-
-        protected override uint CollapsedFolderColor => ImGuiColors.DalamudViolet.ToUint();
-        protected override uint ExpandedFolderColor => CollapsedFolderColor;
-
-        protected override void DrawLeafName(Leaf leaf, in State state, bool selected)
-        {
-            var flag = selected ? ImGuiTreeNodeFlags.Selected | LeafFlags : LeafFlags;
-            using var _ = ImRaii.TreeNode( $"{leaf.Value.IncognitoName()}                                         ", flag);
-        }
-
-        private void NewLocalCharaButton(Vector2 size)
-        {
-            if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.User.ToIconString(), size, "Add Local Character", false, true))
-            {
-                if (Svc.ClientState.LocalPlayer != null) {
-                    var name = Svc.ClientState.LocalPlayer.Name.TextValue;
-                    var world = Svc.ClientState.LocalPlayer.HomeWorld.RowId;
-                    if (C.TryAddCharacter(name, world))
-                    {
-                        if (C.TryGetCharacterConfig(name, world, out var characterConfig))
-                        {
-                            C.Characters.Add(characterConfig);
-                            Fs.CreateLeaf(Fs.Root, Fs.ConvertToName(characterConfig), characterConfig);
-                        }
-                    }
-                    
-                }
-            }
-        }
-
-        private void NewTargetCharaButton(Vector2 size)
-        {
-            if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.DotCircle.ToIconString(), size, "Add Target Character", false, true))
-            {
-                if (Svc.Targets.Target is IPlayerCharacter pc) {
-                    var name = pc.Name.TextValue;
-                    var world = pc.HomeWorld.RowId;
-                    if (C.TryAddCharacter(name, world))
-                    {
-                        if (C.TryGetCharacterConfig(name, world, out var characterConfig))
-                        {
-                            C.Characters.Add(characterConfig);
-                            Fs.CreateLeaf(Fs.Root, Fs.ConvertToName(characterConfig), characterConfig);
-                        }
-                    }
-                }
-            }
-        }
-
-        private void NewCustomCharaButton(Vector2 size)
-        {
-            if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), size, "Add Custom Character", false, true))
-            {
-                ImGui.OpenPopup("AddCustomCharaContext");
-            }
-            if (Worlds != null)
-            {
-                if (ImGui.BeginPopup("AddCustomCharaContext", ImGuiWindowFlags.AlwaysAutoResize))
-                {
-                    ImGui.TextColored(ImGuiColors.DalamudYellow, "Add a specific character");
-                    ImGui.Separator();
-
-                    var worldRow = Worlds.FirstOrNull(w => w.IsPublic && !w.Name.IsEmpty && w.RowId == customWorld);
-                    if (ImGui.BeginCombo("##Specify World", worldRow != null ? worldRow?.Name.ToString() : "Select a World", ImGuiComboFlags.HeightLarge))
-                    {
-                        foreach (var world in Worlds.Where(w => w.IsPublic && !w.Name.IsEmpty))
-                        {
-                            if (ImGui.Selectable($"{world.Name} ({world.RowId})",
-                                                 world.RowId == customWorld))
-                            {
-                                customWorld = world.RowId;
-                            }
-                        }
-                            
-                        ImGui.EndCombo();
-                    }
-                        
-                    ImGui.SameLine();
-                    if (ImGuiComponents.IconButton("AddCustomChara", FontAwesomeIcon.Plus))
-                    {
-                        if (customWorld != 0)
-                        {
-                            if (C.TryAddCharacter(customName, customWorld))
-                            {
-                                if (C.TryGetCharacterConfig(customName, customWorld, out var characterConfig))
-                                {
-                                    C.Characters.Add(characterConfig);
-                                    Fs.CreateLeaf(Fs.Root, Fs.ConvertToName(characterConfig), characterConfig);
-                                }
-                            }
-                        }
-                    }
-
-                    ImGui.InputTextWithHint("##CharacterName", "Character Name", ref customName, 100);
-                        
-                    ImGui.EndPopup();
-                }
-            }
-        }
-        
-        protected void NewFolderButton(Vector2 size)
-        {
-            const string newFolderName = "folderName";
-
-            if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.FolderPlus.ToIconString(), size,
-                                             "New Folder", false, true))
-                ImGui.OpenPopup(newFolderName);
-
-            Folder? folder = null;
-            if (ImGuiUtil.OpenNameField(newFolderName, ref forderName) && forderName.Length > 0)
-                try
-                {
-                    folder   = FileSystem.FindOrCreateAllFolders(forderName);
-                    forderName = string.Empty;
-                }
-                catch
-                {
-                    // Ignored
-                }
-        }
-
-        private void DeleteCharaConfig(Leaf leaf)
-        {
-            if (ImGui.Selectable("Delete")) {
-                var world = leaf.Value.World;
-                var name = leaf.Value.Name;
-                if (C.TryGetCharacterConfig(name, world, out var characterConfig))
-                {
-                    if (C.TryGetWorldDic(world, out var worldDic))
-                    {
-                        if (worldDic.Remove(name))
-                        {
-                            Fs.DoDelete(characterConfig);
-                            C.Characters.Remove(characterConfig);
-
-                            if (worldDic.Count == 0)
-                            {
-                                C.WorldCharacterDictionary.Remove(world);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        private void DrawNewMoodlePopup()
-        {
-            if (!ImGuiUtil.OpenNameField("##NewMoodle", ref newName))
-                return;
-
-            if (newName == "")
-            {
-                Notify.Error($"Name can not be empty!");
-                return;
-            }
-
-            if (clipboardText != null)
-            {
-                try
-                {
-                    var newCharacterConfig = EzConfig.DefaultSerializationFactory.Deserialize<CharacterConfig>(clipboardText);
-                    if (newCharacterConfig != null)
-                    {
-                        Fs.CreateLeaf(Fs.Root, newName, newCharacterConfig);
-                        C.Characters.Add(newCharacterConfig);
-                    }
-                    else
-                    {
-                        Notify.Error($"Invalid clipboard data");
-                    }
-                }
-                catch (Exception e)
-                {
-                    e.LogVerbose();
-                    Notify.Error($"Error: {e.Message}");
-                }
-            }
-            else if (cloneConfig != null)
-            {
-
-            }
-            else
-            {
-                try
-                {
-                    var newStatus = new CharacterConfig();
-                    Fs.CreateLeaf(Fs.Root, newName, newStatus);
-                    C.Characters.Add(newStatus);
-                }
-                catch (Exception e)
-                {
-                    e.LogVerbose();
-                    Notify.Error($"This name already exists!");
-                }
-            }
-
-            newName = string.Empty;
-        }
-
-        protected override void DrawPopups()
-        {
-            DrawNewMoodlePopup();
-        }
-
-        public record struct State { }
-        protected override bool ApplyFilters(IPath path)
-        {
-            return FilterValue.Length > 0 && !path.FullName().Contains(this.FilterValue, StringComparison.OrdinalIgnoreCase);
-        }
-
+      return FilterValue.Length > 0 && !path.FullName().Contains(this.FilterValue, StringComparison.OrdinalIgnoreCase);
     }
+  }
 }

@@ -8,29 +8,24 @@ namespace FakeName.OtterGuiHandlers;
 
 public class OtterGuiHandler
 {
-    public FakeNameFileSystem FakeNameFileSystem;
-    public Logger Logger;
+  public FakeNameFileSystem FakeNameFileSystem;
+  public Logger Logger;
 
-    // public AutomationList AutomationList;
-    // public Whitelist Whitelist;
-    public OtterGuiHandler()
+  public OtterGuiHandler()
+  {
+    try
     {
-        try
-        {
-            Logger = new();
-            FakeNameFileSystem = new(this);
-            // AutomationList = new();
-            // Whitelist = new();
-        }
-        catch (Exception ex)
-        {
-            ex.Log();
-        }
+      Logger = new();
+      FakeNameFileSystem = new(this);
     }
+    catch (Exception ex)
+    {
+      ex.Log();
+    }
+  }
 
-    public void Dispose()
-    {
-        Safe(() => FakeNameFileSystem.Save());
-        // Safe(() => PresetFileSystem?.Save());
-    }
+  public void Dispose()
+  {
+    Safe(() => FakeNameFileSystem.Save());
+  }
 }

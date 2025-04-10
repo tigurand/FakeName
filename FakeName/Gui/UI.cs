@@ -20,9 +20,12 @@ public class UI
       EzConfig.Save();
     }
 
-    if (ImGui.Checkbox("Enabled", ref C.Enabled))
+    var enabled = C.Enabled;
+    if (ImGui.Checkbox("Enabled", ref enabled))
     {
+      C.Enabled = enabled;
       P.Nameplate.ForceRedraw();
+      P.PartyList.ForceRedraw();
     }
 
     ImGuiEx.EzTabBar("##main",[

@@ -21,9 +21,9 @@
     "IconUrl": "https://raw.githubusercontent.com/keifufu/FakeName/main/icon.png",
     "Punchline": "Show a fake name on your game ui.",
     "AcceptsFeedback": true,
-    "DownloadLinkInstall": "https://github.com/keifufu/FakeName/releases/download/0.1.0.4/latest.zip",
-    "AssemblyVersion": "0.1.0.4",
-    "DownloadLinkUpdate": "https://github.com/keifufu/FakeName/releases/download/0.1.0.4/latest.zip",
+    "DownloadLinkInstall": "https://github.com/keifufu/FakeName/releases/download/0.1.1.0/latest.zip",
+    "AssemblyVersion": "0.1.1.0",
+    "DownloadLinkUpdate": "https://github.com/keifufu/FakeName/releases/download/0.1.1.0/latest.zip",
     "DownloadCount": 1,
     "Changelog": "- Updated for 7.2/API12/NET9\n- Added Chat Support"
   }

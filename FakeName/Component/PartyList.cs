@@ -114,12 +114,14 @@ public class PartyList : IDisposable
   private unsafe bool ReplaceName(AtkTextNode* nameNode, string currentName, string playerName, uint world, bool dispose = false)
   {
     if (!P.TryGetConfig(playerName, world, out var characterConfig, true)) return false;
+
     var index = idx(playerName, world);
 
     if (playerName.Equals(currentName) && characterConfig.Enabled && C.Enabled && !dispose)
     {
-      modifiedNamePlates[index] = characterConfig.FakeNameText;
-      nameNode->NodeText.SetString(nameNode->NodeText.ToString().Replace(playerName, characterConfig.FakeNameText));
+      if (characterConfig.FakeNameText.Trim().Length == 0) return true;
+      modifiedNamePlates[index] = characterConfig.FakeNameText.Trim();
+      nameNode->NodeText.SetString(nameNode->NodeText.ToString().Replace(playerName, characterConfig.FakeNameText.Trim()));
       return true;
     }
     else

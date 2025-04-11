@@ -67,7 +67,8 @@ public class AtkTextNodeC
       return;
     }
 
-    if (characterConfig.FakeFcNameText.Length == 0)
+    if (characterConfig.FakeFcNameText.Trim().Length == 0
+     || characterConfig.FakeNameText.Trim().Length == 0)
     {
       hook.Original(node, textPtr);
       return;
@@ -81,45 +82,45 @@ public class AtkTextNodeC
       {
         /*case PlayerPayload pp:
           if (pp.PlayerName.Contains(charaName)) {
-            pp.PlayerName = pp.PlayerName.Replace(charaName, characterConfig.FakeNameText);
+            pp.PlayerName = pp.PlayerName.Replace(charaName, characterConfig.FakeNameText.Trim());
           }
           break;*/
         case TextPayload txt:
           if (txt.Text == null) { }
           else if (txt.Text.Equals(charaName))
           {
-            txt.Text = txt.Text.Replace(charaName, characterConfig.FakeNameText);
+            txt.Text = txt.Text.Replace(charaName, characterConfig.FakeNameText.Trim());
             changed = true;
           }
           /*else if (txt.Text.Contains($"\n《{charaName}》"))
           {
             Service.Log.Debug($"包含角色名的文本:{txt.Text}");
-            txt.Text = txt.Text.Replace(charaName, characterConfig.FakeNameText);
+            txt.Text = txt.Text.Replace(charaName, characterConfig.FakeNameText.Trim());
             changed = true;
           }*/
           else if (txt.Text.Equals($"«{fcName}»"))
           {
-            txt.Text = txt.Text.Replace(fcName, characterConfig.FakeFcNameText);
+            txt.Text = txt.Text.Replace(fcName, characterConfig.FakeFcNameText.Trim());
             changed = true;
           }
           else if (txt.Text.Equals($" «{fcName}»"))
           {
-            txt.Text = txt.Text.Replace(fcName, characterConfig.FakeFcNameText);
+            txt.Text = txt.Text.Replace(fcName, characterConfig.FakeFcNameText.Trim());
             changed = true;
           }
           else if (txt.Text.Equals($" [{fcName}]"))
           {
-            txt.Text = txt.Text.Replace(fcName, characterConfig.FakeFcNameText);
+            txt.Text = txt.Text.Replace(fcName, characterConfig.FakeFcNameText.Trim());
             changed = true;
           }
           // else if (txt.Text.Equals($"{charaName} «{fcName}»"))
           // {
-          //   txt.Text = txt.Text.Replace(charaName, characterConfig.FakeNameText)
-          //                 .Replace(fcName, characterConfig.FakeFcNameText);
+          //   txt.Text = txt.Text.Replace(charaName, characterConfig.FakeNameText.Trim())
+          //                 .Replace(fcName, characterConfig.FakeFcNameText.Trim());
           // }
           // else if (txt.Text.Contains($"级 {charaName}"))
           // {
-          //    txt.Text = txt.Text.Replace(charaName, characterConfig.FakeNameText);
+          //    txt.Text = txt.Text.Replace(charaName, characterConfig.FakeNameText.Trim());
           // }
           else if (txt.Text.Contains(charaName))
           {

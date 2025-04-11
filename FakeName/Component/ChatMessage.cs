@@ -37,7 +37,10 @@ public class ChatMessage : IDisposable
     var localCharaReplace = localCharaName;
     if (P.TryGetConfig(localCharaName, character.HomeWorld.RowId, out var localCharacterConfig))
     {
-      localCharaReplace = localCharacterConfig.FakeNameText;
+      if (localCharacterConfig.FakeNameText.Trim().Length > 0)
+      {
+        localCharaReplace = localCharacterConfig.FakeNameText.Trim();
+      }
     }
 
     // Svc.Log.Debug($"{text.ToString()}");
@@ -49,8 +52,11 @@ public class ChatMessage : IDisposable
         var playerPayload = (PlayerPayload)p;
         // Svc.Log.Debug($"[PLAYER]    - {i.ToString()}: {p.ToString()}");
         if (P.TryGetConfig(playerPayload.PlayerName, playerPayload.World.RowId, out var characterConfig)) {
-          nextTextPayloadText = characterConfig.FakeNameText;
-          nextTextPayloadToReplace = playerPayload.PlayerName;
+          if (characterConfig.FakeNameText.Trim().Length > 0)
+          {
+            nextTextPayloadText = characterConfig.FakeNameText.Trim();
+            nextTextPayloadToReplace = playerPayload.PlayerName;
+          }
         }
       } else if (p.Type == PayloadType.RawText) {
         var textPayload = (TextPayload)p;

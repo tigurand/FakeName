@@ -107,14 +107,14 @@ public class TargetListInfo : IDisposable
     {
       return false;
     }
-    
+
     AtkTextNode* textNode = addon->GetTextNodeById(16);
     var text = textNode->NodeText.ToString();
     
     var oriName = targetChar.Name.TextValue;
     var oriFcName = $"«{targetChar.CompanyTag.TextValue}»";
-    var newName = characterConfig.FakeNameText.Length > 0 ? characterConfig.FakeNameText : targetChar.Name.TextValue;
-    var newFcName = characterConfig.FakeFcNameText.Length > 0 ? $"«{characterConfig.FakeFcNameText}»" : $"«{targetChar.CompanyTag.TextValue}»";
+    var newName = characterConfig.FakeNameText.Trim().Length > 0 ? characterConfig.FakeNameText.Trim() : targetChar.Name.TextValue;
+    var newFcName = characterConfig.FakeFcNameText.Trim().Length > 0 ? $"«{characterConfig.FakeFcNameText.Trim()}»" : $"«{targetChar.CompanyTag.TextValue}»";
     
     if (!(newName.Contains(oriName) && text.Contains(newName)))
     {
@@ -163,8 +163,8 @@ public class TargetListInfo : IDisposable
 
     var oriName = targetChar.Name.TextValue;
     var oriFcName = $"«{targetChar.CompanyTag.TextValue}»";
-    var newName = characterConfig.FakeNameText.Length > 0 ? characterConfig.FakeNameText : oriName;
-    var newFcName = characterConfig.FakeFcNameText.Length > 0 ? $"«{characterConfig.FakeFcNameText}»" : oriFcName;
+    var newName = characterConfig.FakeNameText.Trim().Length > 0 ? characterConfig.FakeNameText.Trim() : oriName;
+    var newFcName = characterConfig.FakeFcNameText.Trim().Length > 0 ? $"«{characterConfig.FakeFcNameText.Trim()}»" : oriFcName;
     
     if (!(newName.Contains(oriName) && text.Contains(newName)))
     {
@@ -230,7 +230,7 @@ public class TargetListInfo : IDisposable
     }
     
     var oriName = targetTargetChara.Name.TextValue;
-    var newName = characterConfig.FakeNameText.Length > 0 ? characterConfig.FakeNameText : targetTargetChara.Name.TextValue;
+    var newName = characterConfig.FakeNameText.Trim().Length > 0 ? characterConfig.FakeNameText.Trim() : targetTargetChara.Name.TextValue;
     
     if (!(newName.Contains(oriName) && text.Contains(newName)))
     {
@@ -274,7 +274,7 @@ public class TargetListInfo : IDisposable
     var text = textNode->NodeText.ToString();
     
     var oriName = targetChar.Name.TextValue;
-    var newName = characterConfig.FakeNameText.Length > 0 ? characterConfig.FakeNameText : targetChar.Name.TextValue;
+    var newName = characterConfig.FakeNameText.Trim().Length > 0 ? characterConfig.FakeNameText.Trim() : targetChar.Name.TextValue;
     
     if (!(newName.Contains(oriName) && text.Contains(newName)))
     {
@@ -331,7 +331,7 @@ public class TargetListInfo : IDisposable
     var text = textNode->NodeText.ToString();
     
     var oriName = name;
-    var newName = characterConfig.FakeNameText.Length > 0 ? characterConfig.FakeNameText : name;
+    var newName = characterConfig.FakeNameText.Trim().Length > 0 ? characterConfig.FakeNameText.Trim() : name;
     if (text.EndsWith($"（{name}）") || text.StartsWith($"{name}取消了"))
     {
       if (!(newName.Contains(oriName) && text.Contains(newName)))

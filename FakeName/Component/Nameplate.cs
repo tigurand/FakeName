@@ -50,25 +50,31 @@ public class Nameplate : IDisposable
       {
         if (P.TryGetConfig(handler.PlayerCharacter.Name.TextValue, handler.PlayerCharacter.HomeWorld.RowId, out var characterConfig))
         {
-          handler.SetField(NamePlateStringField.Name, characterConfig.FakeNameText);
-
-          if (!Svc.Condition[ConditionFlag.BoundByDuty])
+          if (characterConfig.FakeNameText.Trim().Length > 0)
           {
-            var c = (Character*)handler.PlayerCharacter.Address;
-            var newFcName = characterConfig.HideFcName
-              ? ""
-              : characterConfig.FakeFcNameText.Length > 0
-                ? $" «{characterConfig.FakeFcNameText}»" 
-                : handler.PlayerCharacter.CompanyTag.TextValue.Length > 0
-                  ? $" «{handler.PlayerCharacter.CompanyTag.TextValue}»"
-                  : c->IsWanderer()
-                    ? " «Wanderer»"
-                    : c->IsTraveler()
-                      ? " «Traveler»"
-                      : c->IsVoyager()
-                        ? " «Voyager»"
-                        : "";
-            handler.SetField(NamePlateStringField.FreeCompanyTag, newFcName);
+            handler.SetField(NamePlateStringField.Name, characterConfig.FakeNameText.Trim());
+          }
+
+          if (characterConfig.HideFcName || characterConfig.FakeFcNameText.Trim().Length > 0)
+          {
+            if (!Svc.Condition[ConditionFlag.BoundByDuty])
+            {
+              var c = (Character*)handler.PlayerCharacter.Address;
+              var newFcName = characterConfig.HideFcName
+                ? ""
+                : characterConfig.FakeFcNameText.Trim().Length > 0
+                  ? $" «{characterConfig.FakeFcNameText.Trim()}»" 
+                  : handler.PlayerCharacter.CompanyTag.TextValue.Length > 0
+                    ? $" «{handler.PlayerCharacter.CompanyTag.TextValue}»"
+                    : c->IsWanderer()
+                      ? " «Wanderer»"
+                      : c->IsTraveler()
+                        ? " «Traveler»"
+                        : c->IsVoyager()
+                          ? " «Voyager»"
+                          : "";
+              handler.SetField(NamePlateStringField.FreeCompanyTag, newFcName);
+            }
           }
         }
       }
@@ -78,7 +84,10 @@ public class Nameplate : IDisposable
         var owner = (IPlayerCharacter?) Svc.Objects.FirstOrDefault(t => t is IPlayerCharacter && t.EntityId == namePlateInfo->ObjectId.ObjectId);
         if (P.TryGetConfig(owner.Name.TextValue, owner.HomeWorld.RowId, out var characterConfig))
         {
-          handler.SetField(NamePlateStringField.Title, $"《{characterConfig.FakeNameText}》");
+          if (characterConfig.FakeNameText.Trim().Length > 0)
+          {
+            handler.SetField(NamePlateStringField.Title, $"《{characterConfig.FakeNameText.Trim()}》");
+          }
         }
       }
       else if (handler.NamePlateKind == NamePlateKind.BattleNpcFriendly)
@@ -86,7 +95,10 @@ public class Nameplate : IDisposable
         var owner = (IPlayerCharacter?) Svc.Objects.FirstOrDefault(t => t is IPlayerCharacter && t.EntityId == handler.BattleChara.OwnerId);
         if (P.TryGetConfig(owner.Name.TextValue, owner.HomeWorld.RowId, out var characterConfig))
         {
-          handler.SetField(NamePlateStringField.Title, $"《{characterConfig.FakeNameText}》");
+          if (characterConfig.FakeNameText.Trim().Length > 0)
+          {
+            handler.SetField(NamePlateStringField.Title, $"《{characterConfig.FakeNameText.Trim()}》");
+          }
         }
       }
     }

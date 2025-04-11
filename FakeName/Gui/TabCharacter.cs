@@ -70,6 +70,15 @@ internal class TabCharacter
       change = true;
     }
 
+    if (fakeName.Length != 0 && fakeName.Trim().Length == 0)
+    {
+      ImGui.SameLine();
+      using (ImRaii.PushColor(ImGuiCol.Text, 0xf55555ff))
+      {
+        ImGui.TextUnformatted("Invalid Name");
+      }
+    }
+
     // FcName
     var hideFcName = characterConfig.HideFcName;
     if (ImGui.Checkbox("##FcName", ref hideFcName))

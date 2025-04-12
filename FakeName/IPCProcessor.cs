@@ -12,13 +12,13 @@ public class IpcProcessor : IDisposable
 {
   public const uint MajorVersion = 2;
   public const uint MinorVersion = 1;
-  
+
   [EzIPCEvent]
   readonly Action Ready;
 
   [EzIPCEvent]
   readonly Action Disposing;
-  
+
   [EzIPCEvent]
   public readonly Action<string> LocalCharacterDataChanged;
 
@@ -76,7 +76,7 @@ public class IpcProcessor : IDisposable
       }
     }
   }
-  
+
   [EzIPC]
   void SetCharacterData(ICharacter character, string dataJson)
   {
@@ -84,18 +84,18 @@ public class IpcProcessor : IDisposable
     {
       if (character is not IPlayerCharacter playerCharacter) return;
       ClearCharacterData(character);
-  
+
       if (dataJson == string.Empty)
       {
         return;
       }
-  
+
       var titleData = JsonConvert.DeserializeObject<CharacterData>(dataJson);
       if (titleData == null)
       {
         return;
       }
-  
+
       var world = playerCharacter.HomeWorld.RowId;
       var name = playerCharacter.Name.TextValue;
       Idm.AddOrUpdCharacter(name, world, titleData);
@@ -105,7 +105,7 @@ public class IpcProcessor : IDisposable
       e.Log();
     }
   }
-  
+
   public void ChangedLocalCharacterData(CharacterConfig? characterConfig) {
     var json = characterConfig == null? string.Empty : JsonConvert.SerializeObject((CharacterData)characterConfig);
     LocalCharacterDataChanged(json);

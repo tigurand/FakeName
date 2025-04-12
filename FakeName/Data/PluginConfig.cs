@@ -17,13 +17,13 @@ public class PluginConfig : IPluginConfiguration
   public bool HideSupport = false;
 
   public Dictionary<uint, Dictionary<string, CharacterConfig>> WorldCharacterDictionary = new();
-  
+
   public bool TryGetCharacterConfig(string name, uint world, [MaybeNullWhen(false)] out CharacterConfig characterConfig) {
     characterConfig = null;
     if (!WorldCharacterDictionary.TryGetValue(world, out var w)) return false;
     return w.TryGetValue(name, out characterConfig);
   }
-  
+
   public bool TryAddCharacter(string name, uint homeWorld) {
     if (!WorldCharacterDictionary.ContainsKey(homeWorld)) WorldCharacterDictionary.Add(homeWorld, new Dictionary<string, CharacterConfig>());
     if (WorldCharacterDictionary.TryGetValue(homeWorld, out var world)) {
@@ -32,7 +32,7 @@ public class PluginConfig : IPluginConfiguration
 
     return false;
   }
-  
+
   public bool TryGetWorldDic(uint world, [MaybeNullWhen(false)] out Dictionary<string, CharacterConfig> worldDic) {
     worldDic = null;
     return WorldCharacterDictionary.TryGetValue(world, out worldDic);

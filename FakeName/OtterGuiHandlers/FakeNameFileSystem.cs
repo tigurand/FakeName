@@ -211,10 +211,10 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
                 customWorld = world.RowId;
               }
             }
-                
+
             ImGui.EndCombo();
           }
-              
+
           ImGui.SameLine();
           if (ImGuiComponents.IconButton("AddCustomChara", FontAwesomeIcon.Plus))
           {
@@ -232,12 +232,12 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
           }
 
           ImGui.InputTextWithHint("##CharacterName", "Character Name", ref customName, 100);
-              
+
           ImGui.EndPopup();
         }
       }
     }
-      
+
     protected void NewFolderButton(Vector2 size)
     {
       const string newFolderName = "folderName";

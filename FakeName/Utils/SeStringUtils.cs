@@ -56,7 +56,7 @@ internal static class SeStringUtils {
 
     return bytes.ToArray();
   }
-  
+
   public static unsafe SeString ReadSeString(byte* ptr)
   {
     var offset = 0;

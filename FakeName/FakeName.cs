@@ -26,9 +26,9 @@ public class FakeName : IDalamudPlugin
   public PluginConfig Config;
   public Config NewConfig;
   public IpcDataManager IpcDataManager;
-  
+
   public OtterGuiHandler OtterGuiHandler;
-  
+
   public AtkTextNodeC AtkTextNodeC;
   public ChatMessage ChatMessage;
   public Nameplate Nameplate;
@@ -50,14 +50,14 @@ public class FakeName : IDalamudPlugin
       Config = Svc.PluginInterface.GetPluginConfig() as PluginConfig ?? new PluginConfig();
       OldConfigMove(Config, NewConfig);
       IpcDataManager = new();
-      
+
       EzConfigGui.Init(UI.Draw);
       EzCmd.Add("/fakename", EzConfigGui.Open, "Open FakeName Configuration");
       EzCmd.Add("/fn", EzConfigGui.Open, "Alias for /fakename");
       OtterGuiHandler = new();
 
       RepairFileSystem();
-      
+
       AtkTextNodeC = new();
       ChatMessage = new();
       Nameplate = new();
@@ -84,7 +84,7 @@ public class FakeName : IDalamudPlugin
         }
       }
     }
-    
+
     foreach (var (_, characters) in C.WorldCharacterDictionary.ToArray())
     {
       foreach (var (_, characterConfig) in characters.ToArray())
@@ -111,15 +111,15 @@ public class FakeName : IDalamudPlugin
   public void Dispose()
   {
     Safe(()=>IpcProcessor.Dispose());
-    
+
     Safe(()=>AtkTextNodeC.Dispose());
     Safe(()=>ChatMessage.Dispose());
     Safe(()=>Nameplate.Dispose());
     Safe(()=>PartyList.Dispose());
     Safe(()=>TargetListInfo.Dispose());
-    
+
     Safe(()=>OtterGuiHandler.Dispose());
-    
+
     ECommonsMain.Dispose();
     P = null;
   }
@@ -135,7 +135,7 @@ public class FakeName : IDalamudPlugin
       return name.Substring(0, 1) + "...";
     }
   }
-  
+
   public bool TryGetConfig(string name, uint world, [MaybeNullWhen(false)] out CharacterConfig characterConfig, bool ignoreEnabled = false) {
     if (Idm.TryGetCharacterConfig(name, world, out characterConfig))
     {

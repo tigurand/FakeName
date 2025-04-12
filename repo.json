@@ -6,13 +6,8 @@
     "Description": "Change your and other peoples names in various UI elements!",
     "ApplicableVersion": "any",
     "RepoUrl": "https://github.com/keifufu/FakeName",
-    "Tags": [
-      "name",
-      "ui"
-    ],
-    "CategoryTags": [
-      "ui"
-    ],
+    "Tags": ["name", "ui"],
+    "CategoryTags": ["ui"],
     "DalamudApiLevel": "12",
     "LoadRequiredState": 0,
     "LoadSync": false,

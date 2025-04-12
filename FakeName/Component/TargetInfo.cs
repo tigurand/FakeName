@@ -10,7 +10,7 @@ namespace FakeName.Component;
 public class TargetListInfo : IDisposable
 {
   private DateTime lastUpdate = DateTime.Today;
-  
+
   public TargetListInfo()
   {
     Svc.AddonLifecycle.RegisterListener(AddonEvent.PostUpdate, "_TargetInfo", TargetInfoUpdate);
@@ -60,7 +60,7 @@ public class TargetListInfo : IDisposable
       }
     }
   }
-  
+
   private unsafe void FocusTargetInfoUpdate(AddonEvent type, AddonArgs args)
   {
     var addon = (AtkUnitBase*)args.Addon;
@@ -69,7 +69,7 @@ public class TargetListInfo : IDisposable
       RefreshFocusTargetInfo(addon);
     }
   }
-  
+
   private unsafe void WideTextUpdate(AddonEvent type, AddonArgs args)
   {
     var addon = (AtkUnitBase*)args.Addon;
@@ -85,13 +85,13 @@ public class TargetListInfo : IDisposable
     {
       return false;
     }
-    
+
     var localPlayer = Svc.ClientState.LocalPlayer;
     if (localPlayer == null)
     {
       return false;
     }
-    
+
     var targetObj = Svc.Targets.Target;
     if (targetObj == null)
     {
@@ -110,12 +110,12 @@ public class TargetListInfo : IDisposable
 
     AtkTextNode* textNode = addon->GetTextNodeById(16);
     var text = textNode->NodeText.ToString();
-    
+
     var oriName = targetChar.Name.TextValue;
     var oriFcName = $"«{targetChar.CompanyTag.TextValue}»";
     var newName = characterConfig.FakeNameText.Trim().Length > 0 ? characterConfig.FakeNameText.Trim() : targetChar.Name.TextValue;
     var newFcName = characterConfig.FakeFcNameText.Trim().Length > 0 ? $"«{characterConfig.FakeFcNameText.Trim()}»" : $"«{targetChar.CompanyTag.TextValue}»";
-    
+
     if (!(newName.Contains(oriName) && text.Contains(newName)))
     {
       text = text.Replace(oriName, newName);
@@ -135,13 +135,13 @@ public class TargetListInfo : IDisposable
     {
       return false;
     }
-    
+
     var localPlayer = Svc.ClientState.LocalPlayer;
     if (localPlayer == null)
     {
       return false;
     }
-    
+
     var targetObj = Svc.Targets.Target;
     if (targetObj == null)
     {
@@ -157,7 +157,7 @@ public class TargetListInfo : IDisposable
     {
       return false;
     }
-    
+
     AtkTextNode* textNode = addon->GetTextNodeById(10);
     var text = textNode->NodeText.ToString();
 
@@ -165,7 +165,7 @@ public class TargetListInfo : IDisposable
     var oriFcName = $"«{targetChar.CompanyTag.TextValue}»";
     var newName = characterConfig.FakeNameText.Trim().Length > 0 ? characterConfig.FakeNameText.Trim() : oriName;
     var newFcName = characterConfig.FakeFcNameText.Trim().Length > 0 ? $"«{characterConfig.FakeFcNameText.Trim()}»" : oriFcName;
-    
+
     if (!(newName.Contains(oriName) && text.Contains(newName)))
     {
       text = text.Replace(oriName, newName);
@@ -185,22 +185,22 @@ public class TargetListInfo : IDisposable
     {
       return false;
     }
-    
+
     var localPlayer = Svc.ClientState.LocalPlayer;
     if (localPlayer == null)
     {
       return false;
     }
-    
+
     var targetObj = Svc.Targets.Target;
     if (targetObj == null)
     {
       return false;
     }
-    
+
     AtkTextNode* textNode = addon->GetTextNodeById(7);
     var text = textNode->NodeText.ToString();
-    
+
     IPlayerCharacter? targetTargetChara = null;
     var targetTargetObj = targetObj.TargetObject;
     if (targetTargetObj != null)
@@ -228,10 +228,10 @@ public class TargetListInfo : IDisposable
     {
       return false;
     }
-    
+
     var oriName = targetTargetChara.Name.TextValue;
     var newName = characterConfig.FakeNameText.Trim().Length > 0 ? characterConfig.FakeNameText.Trim() : targetTargetChara.Name.TextValue;
-    
+
     if (!(newName.Contains(oriName) && text.Contains(newName)))
     {
       text = text.Replace(oriName, newName);
@@ -240,14 +240,14 @@ public class TargetListInfo : IDisposable
 
     return true;
   }
-  
+
   private unsafe bool RefreshFocusTargetInfo(AtkUnitBase* addon)
   {
     if (!C.Enabled)
     {
       return false;
     }
-    
+
     var localPlayer = Svc.ClientState.LocalPlayer;
     if (localPlayer == null)
     {
@@ -269,13 +269,13 @@ public class TargetListInfo : IDisposable
     {
       return false;
     }
-    
+
     AtkTextNode* textNode = addon->GetTextNodeById(10);
     var text = textNode->NodeText.ToString();
-    
+
     var oriName = targetChar.Name.TextValue;
     var newName = characterConfig.FakeNameText.Trim().Length > 0 ? characterConfig.FakeNameText.Trim() : targetChar.Name.TextValue;
-    
+
     if (!(newName.Contains(oriName) && text.Contains(newName)))
     {
       text = text.Replace(oriName, newName);
@@ -291,13 +291,13 @@ public class TargetListInfo : IDisposable
     {
       return false;
     }
-    
+
     var localPlayer = Svc.ClientState.LocalPlayer;
     if (localPlayer == null)
     {
       return false;
     }
-    
+
     // AtkUnitBase* addon = (AtkUnitBase*)Service.GameGui.GetAddonByName("_WideText", 2);
     // if (addon == null)
     // {
@@ -326,10 +326,10 @@ public class TargetListInfo : IDisposable
     {
       return false;
     }
-    
+
     AtkTextNode* textNode = wideTextAddon->GetTextNodeById(3);
     var text = textNode->NodeText.ToString();
-    
+
     var oriName = name;
     var newName = characterConfig.FakeNameText.Trim().Length > 0 ? characterConfig.FakeNameText.Trim() : name;
     if (text.EndsWith($"（{name}）") || text.StartsWith($"{name}取消了"))

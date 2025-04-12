@@ -52,7 +52,7 @@ public class PartyList : IDisposable
       e.Log();
     }
   }
-  
+
   private void OnPartyListUpdate(AddonEvent type, AddonArgs args)
   {
     try
@@ -76,7 +76,7 @@ public class PartyList : IDisposable
     {
       return;
     }
-    
+
     var partyListMemberStructs = GetPartyListAddon();
     var cwProxy = InfoProxyCrossRealm.Instance();
     foreach (var memberStruct in partyListMemberStructs)
@@ -156,7 +156,7 @@ public class PartyList : IDisposable
   {
     var localIndex = cwProxy->LocalPlayerGroupIndex;
     var crossRealmGroup = cwProxy->CrossRealmGroups[localIndex];
-    
+
     for (var i = 0; i < crossRealmGroup.GroupMemberCount; i++)
     {
       var groupMember = crossRealmGroup.GroupMembers[i];
@@ -170,7 +170,7 @@ public class PartyList : IDisposable
   private unsafe List<AddonPartyList.PartyListMemberStruct> GetPartyListAddon()
   {
     var partyListAddon = (AddonPartyList*) Svc.GameGui.GetAddonByName("_PartyList", 1);
-    
+
     List<AddonPartyList.PartyListMemberStruct> p = [
       partyListAddon->PartyMembers[0],
       partyListAddon->PartyMembers[1],

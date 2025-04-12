@@ -63,7 +63,7 @@ public class Nameplate : IDisposable
               var newFcName = characterConfig.HideFcName
                 ? ""
                 : characterConfig.FakeFcNameText.Trim().Length > 0
-                  ? $" «{characterConfig.FakeFcNameText.Trim()}»" 
+                  ? $" «{characterConfig.FakeFcNameText.Trim()}»"
                     : c->IsWanderer()
                       ? " «Wanderer»"
                       : c->IsTraveler()
@@ -105,5 +105,5 @@ public class Nameplate : IDisposable
         }
       }
     }
-  } 
+  }
 }

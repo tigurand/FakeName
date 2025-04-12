@@ -46,7 +46,7 @@ public class Nameplate : IDisposable
 
     foreach (var handler in handlers)
     {
-      if (handler.NamePlateKind == NamePlateKind.PlayerCharacter)
+      if (handler.NamePlateKind == NamePlateKind.PlayerCharacter && handler.PlayerCharacter != null)
       {
         if (P.TryGetConfig(handler.PlayerCharacter.Name.TextValue, handler.PlayerCharacter.HomeWorld.RowId, out var characterConfig))
         {
@@ -64,15 +64,15 @@ public class Nameplate : IDisposable
                 ? ""
                 : characterConfig.FakeFcNameText.Trim().Length > 0
                   ? $" «{characterConfig.FakeFcNameText.Trim()}»" 
-                  : handler.PlayerCharacter.CompanyTag.TextValue.Length > 0
-                    ? $" «{handler.PlayerCharacter.CompanyTag.TextValue}»"
                     : c->IsWanderer()
                       ? " «Wanderer»"
                       : c->IsTraveler()
                         ? " «Traveler»"
                         : c->IsVoyager()
                           ? " «Voyager»"
-                          : "";
+                          : handler.PlayerCharacter.CompanyTag.TextValue.Length > 0
+                            ? $" «{handler.PlayerCharacter.CompanyTag.TextValue}»"
+                            : "";
               handler.SetField(NamePlateStringField.FreeCompanyTag, newFcName);
             }
           }
@@ -81,7 +81,9 @@ public class Nameplate : IDisposable
       else if (handler.NamePlateKind == NamePlateKind.EventNpcCompanion)
       {
         var namePlateInfo = FFXIVClientStructs.FFXIV.Client.UI.RaptureAtkModule.Instance()->NamePlateInfoEntries.GetPointer(handler.NamePlateIndex);
+        if (namePlateInfo == null) return;
         var owner = (IPlayerCharacter?) Svc.Objects.FirstOrDefault(t => t is IPlayerCharacter && t.EntityId == namePlateInfo->ObjectId.ObjectId);
+        if (owner == null) return;
         if (P.TryGetConfig(owner.Name.TextValue, owner.HomeWorld.RowId, out var characterConfig))
         {
           if (characterConfig.FakeNameText.Trim().Length > 0)
@@ -90,9 +92,10 @@ public class Nameplate : IDisposable
           }
         }
       }
-      else if (handler.NamePlateKind == NamePlateKind.BattleNpcFriendly)
+      else if (handler.NamePlateKind == NamePlateKind.BattleNpcFriendly && handler.BattleChara != null)
       {
         var owner = (IPlayerCharacter?) Svc.Objects.FirstOrDefault(t => t is IPlayerCharacter && t.EntityId == handler.BattleChara.OwnerId);
+        if (owner == null) return;
         if (P.TryGetConfig(owner.Name.TextValue, owner.HomeWorld.RowId, out var characterConfig))
         {
           if (characterConfig.FakeNameText.Trim().Length > 0)

@@ -81,7 +81,7 @@ public class Nameplate : IDisposable
       else if (handler.NamePlateKind == NamePlateKind.EventNpcCompanion)
       {
         var namePlateInfo = FFXIVClientStructs.FFXIV.Client.UI.RaptureAtkModule.Instance()->NamePlateInfoEntries.GetPointer(handler.NamePlateIndex);
-        if (namePlateInfo == null) return;
+        if (namePlateInfo == null || namePlateInfo->ObjectId == 0xE0000000) return;
         var owner = (IPlayerCharacter?) Svc.Objects.FirstOrDefault(t => t is IPlayerCharacter && t.EntityId == namePlateInfo->ObjectId.ObjectId);
         if (owner == null) return;
         if (P.TryGetConfig(owner.Name.TextValue, owner.HomeWorld.RowId, out var characterConfig))

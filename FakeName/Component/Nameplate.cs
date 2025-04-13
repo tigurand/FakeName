@@ -11,6 +11,12 @@ using Dalamud.Game.Config;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Plugin.Services;
+using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Component.GUI;
+using System.Reflection;
+using FFXIVClientStructs.FFXIV.Client.Game.Object;
+using Dalamud.Game.ClientState.Objects.Types;
 
 namespace FakeName.Component;
 
@@ -19,13 +25,26 @@ public class Nameplate : IDisposable
   internal Nameplate()
   {
     P.NameplateGui.OnNamePlateUpdate += OnUpdate;
+    P.NameplateGui.OnPostNamePlateUpdate += OnUpdate;
+    P.NameplateGui.OnDataUpdate += OnUpdate;
+    P.NameplateGui.OnPostDataUpdate += OnUpdate;
+    Svc.Framework.Update += FrameworkUpdate;
     ForceRedraw();
   }
 
   public void Dispose()
   {
     P.NameplateGui.OnNamePlateUpdate -= OnUpdate;
+    P.NameplateGui.OnPostNamePlateUpdate -= OnUpdate;
+    P.NameplateGui.OnDataUpdate -= OnUpdate;
+    P.NameplateGui.OnPostDataUpdate -= OnUpdate;
+    Svc.Framework.Update -= FrameworkUpdate;
     ForceRedraw();
+  }
+
+  public void FrameworkUpdate(IFramework _)
+  {
+    // P.NameplateGui.RequestRedraw();
   }
 
   public void ForceRedraw()
@@ -38,6 +57,16 @@ public class Nameplate : IDisposable
         Svc.GameConfig.Set(o, v);
       }
     }
+  }
+
+  private unsafe Character* GetOwner(IGameObject gameObject)
+  {
+    if (gameObject == null) return null;
+    var c = (Character*)gameObject.Address;
+    if (c == null || c->CompanionOwnerId == 0xE000000) return null;
+    var owner = GameObjectManager.Instance()->Objects.IndexSorted[(int)gameObject.ObjectIndex - 1];
+    if (owner == null || owner.Value == null) return null;
+    return (Character*)owner.Value;
   }
 
   private unsafe void OnUpdate(INamePlateUpdateContext context, IReadOnlyList<INamePlateUpdateHandler> handlers)
@@ -80,11 +109,9 @@ public class Nameplate : IDisposable
       }
       else if (handler.NamePlateKind == NamePlateKind.EventNpcCompanion)
       {
-        var namePlateInfo = FFXIVClientStructs.FFXIV.Client.UI.RaptureAtkModule.Instance()->NamePlateInfoEntries.GetPointer(handler.NamePlateIndex);
-        if (namePlateInfo == null || namePlateInfo->ObjectId == 0xE0000000) return;
-        var owner = (IPlayerCharacter?) Svc.Objects.FirstOrDefault(t => t is IPlayerCharacter && t.EntityId == namePlateInfo->ObjectId.ObjectId);
+        var owner = GetOwner(handler.GameObject);
         if (owner == null) return;
-        if (P.TryGetConfig(owner.Name.TextValue, owner.HomeWorld.RowId, out var characterConfig))
+        if (P.TryGetConfig(SeString.Parse(owner->Name).ToString(), owner->HomeWorld, out var characterConfig))
         {
           if (characterConfig.FakeNameText.Trim().Length > 0)
           {
@@ -94,6 +121,7 @@ public class Nameplate : IDisposable
       }
       else if (handler.NamePlateKind == NamePlateKind.BattleNpcFriendly && handler.BattleChara != null)
       {
+        // using GetOwner here makes it explode again? WHY??
         var owner = (IPlayerCharacter?) Svc.Objects.FirstOrDefault(t => t is IPlayerCharacter && t.EntityId == handler.BattleChara.OwnerId);
         if (owner == null) return;
         if (P.TryGetConfig(owner.Name.TextValue, owner.HomeWorld.RowId, out var characterConfig))

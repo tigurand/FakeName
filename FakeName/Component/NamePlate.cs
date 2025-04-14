@@ -15,48 +15,28 @@ using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using System.Reflection;
-using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Game.ClientState.Objects.Enums;
 
 namespace FakeName.Component;
 
-public class Nameplate : IDisposable
+public class NamePlate : IDisposable
 {
-  internal Nameplate()
+  internal NamePlate()
   {
-    P.NameplateGui.OnNamePlateUpdate += OnUpdate;
-    P.NameplateGui.OnPostNamePlateUpdate += OnUpdate;
-    P.NameplateGui.OnDataUpdate += OnUpdate;
-    P.NameplateGui.OnPostDataUpdate += OnUpdate;
-    Svc.Framework.Update += FrameworkUpdate;
+    P.NamePlateGui.OnNamePlateUpdate += OnUpdate;
     ForceRedraw();
   }
 
   public void Dispose()
   {
-    P.NameplateGui.OnNamePlateUpdate -= OnUpdate;
-    P.NameplateGui.OnPostNamePlateUpdate -= OnUpdate;
-    P.NameplateGui.OnDataUpdate -= OnUpdate;
-    P.NameplateGui.OnPostDataUpdate -= OnUpdate;
-    Svc.Framework.Update -= FrameworkUpdate;
+    P.NamePlateGui.OnNamePlateUpdate -= OnUpdate;
     ForceRedraw();
-  }
-
-  public void FrameworkUpdate(IFramework _)
-  {
-    // P.NameplateGui.RequestRedraw();
   }
 
   public void ForceRedraw()
   {
-    foreach (var o in new[] { UiConfigOption.NamePlateNameTitleTypeSelf, UiConfigOption.NamePlateNameTitleTypeFriend, UiConfigOption.NamePlateNameTitleTypeParty, UiConfigOption.NamePlateNameTitleTypeAlliance, UiConfigOption.NamePlateNameTitleTypeOther })
-    {
-      if (Svc.GameConfig.TryGet(o, out bool v))
-      {
-        Svc.GameConfig.Set(o, !v);
-        Svc.GameConfig.Set(o, v);
-      }
-    }
+    P.NamePlateGui.RequestRedraw();
   }
 
   private unsafe void OnUpdate(INamePlateUpdateContext context, IReadOnlyList<INamePlateUpdateHandler> handlers)
@@ -97,16 +77,12 @@ public class Nameplate : IDisposable
           }
         }
       }
-      else if (handler.NamePlateKind == NamePlateKind.EventNpcCompanion)
+      else if (handler.NamePlateKind == NamePlateKind.EventNpcCompanion && handler.GameObject != null && handler.GameObject.ObjectKind == ObjectKind.Companion)
       {
-        if (handler.GameObject == null) return;
         var c = (Character*)handler.GameObject.Address;
-        if (c == null || c->CompanionOwnerId == 0xE000000 || handler.GameObject.ObjectIndex == 0) return;
-        var _owner = GameObjectManager.Instance()->Objects.IndexSorted[(int)handler.GameObject.ObjectIndex - 1];
-        if (_owner == null || _owner.Value == null) return;
-        var owner = (Character*)_owner.Value;
-        if (owner == null) return;
-        if (P.TryGetConfig(SeString.Parse(owner->Name).ToString(), owner->HomeWorld, out var characterConfig))
+        if (c == null || c->CompanionOwnerId == 0xE000000) return;
+        var owner = (IPlayerCharacter?) Svc.Objects.FirstOrDefault(t => t is IPlayerCharacter && t.EntityId == c->CompanionOwnerId);
+        if (P.TryGetConfig(owner.Name.TextValue, owner.HomeWorld.RowId, out var characterConfig))
         {
           if (characterConfig.FakeNameText.Trim().Length > 0)
           {

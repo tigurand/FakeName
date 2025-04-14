@@ -107,7 +107,7 @@ internal class TabCharacter
     var localPlayer = Svc.ClientState.LocalPlayer;
     if (change && localPlayer != null)
     {
-      P.Nameplate.ForceRedraw();
+      P.NamePlate.ForceRedraw();
       P.PartyList.ForceRedraw();
     }
 

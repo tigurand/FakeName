@@ -33,9 +33,6 @@ jobs:
           API_LEVEL=$(jq -r '.DalamudApiLevel' ./FakeName/bin/Release/FakeName/FakeName.json)
           echo "ASSEMBLY_VERSION=$VERSION" >> $GITHUB_ENV
           echo "API_LEVEL=$API_LEVEL" >> $GITHUB_ENV
-      - name: update repo.json
-        run: |
-          echo TODO: env.ASSEMBLY_VERSION into repo.json, and update download and install path
       - name: create release
         run: |
           gh release create "${{ env.ASSEMBLY_VERSION }}" ./FakeName/bin/Release/FakeName/latest.zip \

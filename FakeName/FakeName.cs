@@ -21,7 +21,7 @@ public class FakeName : IDalamudPlugin
   public static FakeName P;
   public static Config C => P.NewConfig;
   public static IpcDataManager Idm => P.IpcDataManager;
-  [PluginService] public INamePlateGui NameplateGui { get; private set; } = null!;
+  [PluginService] public INamePlateGui NamePlateGui { get; private set; } = null!;
 
   public PluginConfig Config;
   public Config NewConfig;
@@ -31,7 +31,7 @@ public class FakeName : IDalamudPlugin
 
   public AtkTextNodeC AtkTextNodeC;
   public ChatMessage ChatMessage;
-  public Nameplate Nameplate;
+  public NamePlate NamePlate;
   public PartyList PartyList;
   public TargetListInfo TargetListInfo;
 
@@ -60,7 +60,7 @@ public class FakeName : IDalamudPlugin
 
       AtkTextNodeC = new();
       ChatMessage = new();
-      Nameplate = new();
+      NamePlate = new();
       PartyList = new();
       TargetListInfo = new();
 
@@ -114,7 +114,7 @@ public class FakeName : IDalamudPlugin
 
     Safe(()=>AtkTextNodeC.Dispose());
     Safe(()=>ChatMessage.Dispose());
-    Safe(()=>Nameplate.Dispose());
+    Safe(()=>NamePlate.Dispose());
     Safe(()=>PartyList.Dispose());
     Safe(()=>TargetListInfo.Dispose());
 

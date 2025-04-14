@@ -24,7 +24,7 @@ public class UI
     if (ImGui.Checkbox("Enabled", ref enabled))
     {
       C.Enabled = enabled;
-      P.Nameplate.ForceRedraw();
+      P.NamePlate.ForceRedraw();
       P.PartyList.ForceRedraw();
     }
 

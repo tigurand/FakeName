@@ -162,7 +162,8 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
             if (C.TryGetCharacterConfig(name, world, out var characterConfig))
             {
               C.Characters.Add(characterConfig);
-              Fs.CreateLeaf(Fs.Root, Fs.ConvertToName(characterConfig), characterConfig);
+              var (leaf, _) = Fs.CreateLeaf(Fs.Root, Fs.ConvertToName(characterConfig), characterConfig);
+              P.OtterGuiHandler.FakeNameFileSystem.Selector.Select(leaf, true);
             }
           }
         }
@@ -181,7 +182,8 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
             if (C.TryGetCharacterConfig(name, world, out var characterConfig))
             {
               C.Characters.Add(characterConfig);
-              Fs.CreateLeaf(Fs.Root, Fs.ConvertToName(characterConfig), characterConfig);
+              var (leaf, _) = Fs.CreateLeaf(Fs.Root, Fs.ConvertToName(characterConfig), characterConfig);
+              P.OtterGuiHandler.FakeNameFileSystem.Selector.Select(leaf, true);
             }
           }
         }
@@ -225,7 +227,8 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
                 if (C.TryGetCharacterConfig(customName, customWorld, out var characterConfig))
                 {
                   C.Characters.Add(characterConfig);
-                  Fs.CreateLeaf(Fs.Root, Fs.ConvertToName(characterConfig), characterConfig);
+                  var (leaf, _) = Fs.CreateLeaf(Fs.Root, Fs.ConvertToName(characterConfig), characterConfig);
+                  P.OtterGuiHandler.FakeNameFileSystem.Selector.Select(leaf, true);
                 }
               }
             }
@@ -271,6 +274,8 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
             {
               Fs.DoDelete(characterConfig);
               C.Characters.Remove(characterConfig);
+              P.NamePlate.ForceRedraw();
+              P.PartyList.ForceRedraw();
 
               if (worldDic.Count == 0)
               {
@@ -300,8 +305,9 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
           var newCharacterConfig = EzConfig.DefaultSerializationFactory.Deserialize<CharacterConfig>(clipboardText);
           if (newCharacterConfig != null)
           {
-            Fs.CreateLeaf(Fs.Root, newName, newCharacterConfig);
+            var (leaf, _) = Fs.CreateLeaf(Fs.Root, newName, newCharacterConfig);
             C.Characters.Add(newCharacterConfig);
+            P.OtterGuiHandler.FakeNameFileSystem.Selector.Select(leaf, true);
           }
           else
           {
@@ -323,8 +329,9 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
         try
         {
           var newStatus = new CharacterConfig();
-          Fs.CreateLeaf(Fs.Root, newName, newStatus);
+          var (leaf, _) = Fs.CreateLeaf(Fs.Root, newName, newStatus);
           C.Characters.Add(newStatus);
+          P.OtterGuiHandler.FakeNameFileSystem.Selector.Select(leaf, true);
         }
         catch (Exception e)
         {

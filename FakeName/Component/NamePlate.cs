@@ -95,6 +95,7 @@ public class NamePlate : IDisposable
       // Pets (Eos, Carbuncle, ...)
       else if (handler.NamePlateKind == NamePlateKind.BattleNpcFriendly && handler.GameObject != null && handler.GameObject.SubKind == 2)
       {
+        if (handler.GameObject.OwnerId == 0xE000000) return;
         var owner = (IPlayerCharacter?) Svc.Objects.FirstOrDefault(t => t is IPlayerCharacter && t.EntityId == handler.GameObject.OwnerId);
         if (owner == null) return;
         if (P.TryGetConfig(owner.Name.TextValue, owner.HomeWorld.RowId, out var characterConfig))

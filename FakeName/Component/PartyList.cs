@@ -83,11 +83,10 @@ public class PartyList : IDisposable
     {
       var nodeText = memberStruct.Name->NodeText.ToString();
       var nameNode = memberStruct.Name;
-      // var match = Regex.Match(nodeText, "^(?:.*级\\s)?(?:\u0002\u0012\u0002Y\u0003)?\\s?(.*?)(?:\u0002\u001a\u0002\u0001\u0003)?$");
-      var match = Regex.Match(nodeText, @"^([^ ]+) (.*)");
+      var match = Regex.Match(nodeText, @"[\u0000-\u001F\u007F-\u009F\uE000-\uF8FF\s]*([A-Za-z'\-]+(?:\s+[A-Za-z'\-]+)*)[\u0000-\u001F\u007F-\u009F\uE000-\uF8FF\s]*$");
       if (match.Success)
       {
-        var currentName = match.Groups[2].Value.Trim();
+        var currentName = match.Groups[1].Value.Trim();
         ReplaceName(nameNode, currentName, localPlayer.Name.TextValue, localPlayer.HomeWorld.RowId, dispose);
         if (Svc.Party.Any())
         {

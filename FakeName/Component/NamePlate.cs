@@ -82,7 +82,7 @@ public class NamePlate : IDisposable
       else if (handler.NamePlateKind == NamePlateKind.EventNpcCompanion && handler.GameObject != null && handler.GameObject.ObjectKind == ObjectKind.Companion)
       {
         var c = (Character*)handler.GameObject.Address;
-        if (c == null || c->CompanionOwnerId == 0xE000000 || c->FateId != 0) return;
+        if (c == null || c->CompanionOwnerId == 0xE000000) return;
         var owner = (IPlayerCharacter?) Svc.Objects.FirstOrDefault(t => t is IPlayerCharacter && t.EntityId == c->CompanionOwnerId);
         if (P.TryGetConfig(owner.Name.TextValue, owner.HomeWorld.RowId, out var characterConfig))
         {

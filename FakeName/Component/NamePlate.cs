@@ -45,6 +45,7 @@ public class NamePlate : IDisposable
 
     foreach (var handler in handlers)
     {
+      // Players
       if (handler.NamePlateKind == NamePlateKind.PlayerCharacter && handler.PlayerCharacter != null)
       {
         if (P.TryGetConfig(handler.PlayerCharacter.Name.TextValue, handler.PlayerCharacter.HomeWorld.RowId, out var characterConfig))
@@ -77,10 +78,11 @@ public class NamePlate : IDisposable
           }
         }
       }
+      // Minions
       else if (handler.NamePlateKind == NamePlateKind.EventNpcCompanion && handler.GameObject != null && handler.GameObject.ObjectKind == ObjectKind.Companion)
       {
         var c = (Character*)handler.GameObject.Address;
-        if (c == null || c->CompanionOwnerId == 0xE000000) return;
+        if (c == null || c->CompanionOwnerId == 0xE000000 || c->FateId != 0) return;
         var owner = (IPlayerCharacter?) Svc.Objects.FirstOrDefault(t => t is IPlayerCharacter && t.EntityId == c->CompanionOwnerId);
         if (P.TryGetConfig(owner.Name.TextValue, owner.HomeWorld.RowId, out var characterConfig))
         {
@@ -90,9 +92,10 @@ public class NamePlate : IDisposable
           }
         }
       }
-      else if (handler.NamePlateKind == NamePlateKind.BattleNpcFriendly && handler.BattleChara != null)
+      // Pets (Eos, Carbuncle, ...)
+      else if (handler.NamePlateKind == NamePlateKind.BattleNpcFriendly && handler.GameObject != null && handler.GameObject.SubKind == 2)
       {
-        var owner = (IPlayerCharacter?) Svc.Objects.FirstOrDefault(t => t is IPlayerCharacter && t.EntityId == handler.BattleChara.OwnerId);
+        var owner = (IPlayerCharacter?) Svc.Objects.FirstOrDefault(t => t is IPlayerCharacter && t.EntityId == handler.GameObject.OwnerId);
         if (owner == null) return;
         if (P.TryGetConfig(owner.Name.TextValue, owner.HomeWorld.RowId, out var characterConfig))
         {

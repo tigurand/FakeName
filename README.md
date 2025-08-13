@@ -6,5 +6,5 @@ Change your and other peoples names in various UI elements!
 This is NOT a privacy plugin!! This will certainly leak your name in multiple ways if you're streaming!
 
 ```
-https://raw.githubusercontent.com/keifufu/FakeName/main/repo.json
+https://raw.githubusercontent.com/tigurand/DalamudPlugins/refs/heads/main/repo.json
 ```

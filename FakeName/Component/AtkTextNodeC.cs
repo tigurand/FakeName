@@ -1,12 +1,10 @@
-﻿using System;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Hooking;
 using Dalamud.Utility.Signatures;
 using ECommons.DalamudServices;
-using ECommons.Logging;
-using FakeName.Component;
 using FakeName.Utils;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using System;
 using System.Runtime.InteropServices;
 
 namespace FakeName.Component;
@@ -16,7 +14,7 @@ public class AtkTextNodeC
   [UnmanagedFunctionPointer(CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
   public delegate void AtkTextNodeSetTextDelegate(IntPtr node, IntPtr text);
 
-  [Signature("E8 ?? ?? ?? ?? 8D 4E 32", DetourName = nameof(AtkTextNodeSetTextDetour))]
+  [Signature("48 85 C9 0F 84 ?? ?? ?? ?? 4C 8B DC 53 56", DetourName = nameof(AtkTextNodeSetTextDetour))]
   private readonly Hook<AtkTextNodeSetTextDelegate> hook = null!;
 
   internal AtkTextNodeC()
@@ -182,18 +180,18 @@ public class AtkTextNodeC
           case TextPayload txt:
             if (txt.Text.Equals(charaName))
             {
-                // Service.Log.Debug($"world[{agent->WorldId}] 替换{txt.Text} {charaName}->{characterConfig.FakeNameText}");
-                txt.Text = txt.Text.Replace(charaName, characterConfig.FakeNameText);
-                changed = true;
+              // Service.Log.Debug($"world[{agent->WorldId}] 替换{txt.Text} {charaName}->{characterConfig.FakeNameText}");
+              txt.Text = txt.Text.Replace(charaName, characterConfig.FakeNameText);
+              changed = true;
             }
             else if (txt.Text.Equals($"要以{charaName}登录吗？"))
             {
-                txt.Text = txt.Text.Replace(charaName, characterConfig.FakeNameText);
-                changed = true;
+              txt.Text = txt.Text.Replace(charaName, characterConfig.FakeNameText);
+              changed = true;
             }
             else if (txt.Text.Contains(charaName))
             {
-                // Service.Log.Verbose($"包含角色名的文本:{txt.Text}");
+              // Service.Log.Verbose($"包含角色名的文本:{txt.Text}");
             }
             break;
         }

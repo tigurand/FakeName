@@ -1,14 +1,12 @@
 {
-  "Author": "keifufu",
+  "Author": "msew11, keifufu, Lucille",
   "Name": "Fake Name",
   "Punchline": "Show a fake name on your game ui.",
   "Description": "Change your and other peoples names in various UI elements!",
   "InternalName": "FakeName",
   "ApplicableVersion": "any",
-  "repoUrl": "https://github.com/keifufu/FakeName",
-  "IconUrl": "https://raw.githubusercontent.com/keifufu/FakeName/main/icon.png",
-  "Changelog": "",
+  "repoUrl": "https://github.com/tigurand/FakeName",
+  "IconUrl": "https://raw.githubusercontent.com/tigurand/FakeName/refs/heads/main/icon.png",
   "Tags": ["name", "ui"],
-  "LoadPriority": 128,
-  "DalamudApiLevel": 12
+  "LoadPriority": 128
 }

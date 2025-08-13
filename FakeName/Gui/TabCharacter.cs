@@ -1,9 +1,9 @@
-﻿using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using ECommons.DalamudServices;
 using FakeName.Data;
 using FakeName.OtterGuiHandlers;
-using ImGuiNET;
 using OtterGui.Raii;
+using System.Numerics;
 
 namespace FakeName.Gui;
 
@@ -13,7 +13,11 @@ internal class TabCharacter
 
   public static void Draw()
   {
-    P.OtterGuiHandler.FakeNameFileSystem.Selector.Draw(200f);
+    using (var child = ImRaii.Child("##Selector", new Vector2(200, 0), true))
+    {
+        if (child)
+            P.OtterGuiHandler.FakeNameFileSystem.Selector.Draw();
+    }
     ImGui.SameLine();
     using var group = ImRaii.Group();
     DrawHeader();
@@ -33,7 +37,10 @@ internal class TabCharacter
   {
     using var child = ImRaii.Child("##Panel", -Vector2.One, true);
     if (!child) return;
-    DrawCharacterView(Selected);
+    if (Selected != null)
+    {
+        DrawCharacterView(Selected);
+    }
   }
 
   public static void DrawCharacterView(CharacterConfig? characterConfig)
@@ -107,13 +114,13 @@ internal class TabCharacter
     var localPlayer = Svc.ClientState.LocalPlayer;
     if (change && localPlayer != null)
     {
-      P.NamePlate.ForceRedraw();
-      P.PartyList.ForceRedraw();
+        if (P.NamePlate != null) P.NamePlate.ForceRedraw();
+        if (P.PartyList != null) P.PartyList.ForceRedraw();
     }
 
     if (change && localPlayer != null && localPlayer.Name.TextValue.Equals(characterConfig.Name) && localPlayer.HomeWorld.RowId == characterConfig.World)
     {
-      P.IpcProcessor.ChangedLocalCharacterData(characterConfig);
+        if (P.IpcProcessor != null) P.IpcProcessor.ChangedLocalCharacterData(characterConfig);
     }
   }
 }

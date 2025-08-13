@@ -168,7 +168,7 @@ public class PartyList : IDisposable
 
   private unsafe List<AddonPartyList.PartyListMemberStruct> GetPartyListAddon()
   {
-    var partyListAddon = (AddonPartyList*) Svc.GameGui.GetAddonByName("_PartyList", 1);
+    var partyListAddon = (AddonPartyList*)Svc.GameGui.GetAddonByName("_PartyList", 1).Address;
 
     List<AddonPartyList.PartyListMemberStruct> p = [
       partyListAddon->PartyMembers[0],

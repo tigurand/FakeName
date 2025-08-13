@@ -24,19 +24,19 @@ public class NamePlate : IDisposable
 {
   internal NamePlate()
   {
-    P.NamePlateGui.OnNamePlateUpdate += OnUpdate;
+    Service.NamePlateGui.OnNamePlateUpdate += OnUpdate;
     ForceRedraw();
   }
 
   public void Dispose()
   {
-    P.NamePlateGui.OnNamePlateUpdate -= OnUpdate;
+    Service.NamePlateGui.OnNamePlateUpdate -= OnUpdate;
     ForceRedraw();
   }
 
   public void ForceRedraw()
   {
-    P.NamePlateGui.RequestRedraw();
+    Service.NamePlateGui.RequestRedraw();
   }
 
   private unsafe void OnUpdate(INamePlateUpdateContext context, IReadOnlyList<INamePlateUpdateHandler> handlers)

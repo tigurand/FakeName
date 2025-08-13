@@ -32,7 +32,7 @@ public class TargetListInfo : IDisposable
 
   private unsafe void TargetInfoUpdate(AddonEvent type, AddonArgs args)
   {
-    var addon = (AtkUnitBase*)args.Addon;
+    var addon = (AtkUnitBase*)args.Addon.Address;
     if (addon->IsVisible)
     {
       RefreshTargetInfo(addon);
@@ -41,7 +41,7 @@ public class TargetListInfo : IDisposable
 
   private unsafe void TargetInfoMainTargetUpdate(AddonEvent type, AddonArgs args)
   {
-    var addon = (AtkUnitBase*)args.Addon;
+    var addon = (AtkUnitBase*)args.Addon.Address;
     if (addon->IsVisible)
     {
       RefreshIndependentTargetInfo(addon);
@@ -50,20 +50,20 @@ public class TargetListInfo : IDisposable
 
   private unsafe void TargetTargetUpdate(AddonEvent type, AddonArgs args)
   {
-    var addon = (AtkUnitBase*)args.Addon;
+    var addon = (AtkUnitBase*)args.Addon.Address;
     if (addon->IsVisible)
     {
       var resNode = addon->GetNodeById(3);
       if (resNode != null && resNode->IsVisible())
       {
-        RefreshTargetTarget((AtkUnitBase*)args.Addon);
+        RefreshTargetTarget((AtkUnitBase*)args.Addon.Address);
       }
     }
   }
 
   private unsafe void FocusTargetInfoUpdate(AddonEvent type, AddonArgs args)
   {
-    var addon = (AtkUnitBase*)args.Addon;
+    var addon = (AtkUnitBase*)args.Addon.Address;
     if (addon->IsVisible)
     {
       RefreshFocusTargetInfo(addon);
@@ -72,7 +72,7 @@ public class TargetListInfo : IDisposable
 
   private unsafe void WideTextUpdate(AddonEvent type, AddonArgs args)
   {
-    var addon = (AtkUnitBase*)args.Addon;
+    var addon = (AtkUnitBase*)args.Addon.Address;
     if (addon->IsVisible)
     {
       RefreshWideText(addon);

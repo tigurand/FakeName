@@ -1,12 +1,8 @@
-using Dalamud.Interface;
-using Dalamud.Interface.Colors;
-using Dalamud.Interface.Components;
-using Dalamud.Utility;
+using Dalamud.Bindings.ImGui;
 using ECommons.Configuration;
 using ECommons.DalamudServices;
 using ECommons.ImGuiMethods;
 using ECommons.Throttlers;
-using ImGuiNET;
 
 namespace FakeName.Gui;
 
@@ -24,11 +20,11 @@ public class UI
     if (ImGui.Checkbox("Enabled", ref enabled))
     {
       C.Enabled = enabled;
-      P.NamePlate.ForceRedraw();
-      P.PartyList.ForceRedraw();
+      P.NamePlate?.ForceRedraw();
+      P.PartyList?.ForceRedraw();
     }
 
-    ImGuiEx.EzTabBar("##main",[
+    ImGuiEx.EzTabBar("##main", [
       ("Characters", TabCharacter.Draw, null, true),
       ("Debug", TabDebug.Draw, null, true),
     ]);

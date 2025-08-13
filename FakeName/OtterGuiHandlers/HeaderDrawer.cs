@@ -1,11 +1,11 @@
+using Dalamud.Bindings.ImGui;
+using Dalamud.Interface;
+using Dalamud.Interface.Utility;
+using OtterGui;
+using OtterGui.Raii;
 using System;
 using System.Linq;
 using System.Numerics;
-using Dalamud.Interface;
-using Dalamud.Interface.Utility;
-using ImGuiNET;
-using OtterGui;
-using OtterGui.Raii;
 
 namespace FakeName.OtterGuiHandlers;
 

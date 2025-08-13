@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using Dalamud.Interface.Colors;
@@ -14,18 +9,21 @@ using ECommons.DalamudServices;
 using ECommons.ImGuiMethods;
 using ECommons.Logging;
 using FakeName.Data;
-using ImGuiNET;
 using Lumina.Excel;
 using Lumina.Excel.Sheets;
 using OtterGui;
-using OtterGui.Classes;
 using OtterGui.Filesystem;
 using OtterGui.FileSystem.Selector;
 using OtterGui.Raii;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Numerics;
 
 namespace FakeName.OtterGuiHandlers;
 
-public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposable
+public sealed class FakeNameFileSystem : FileSystem<CharacterConfig>, IDisposable
 {
   string FilePath = Path.Combine(Svc.PluginInterface.ConfigDirectory.FullName, "FakeNameFileSystem.json");
   public readonly FakeNameFileSystem.FileSystemSelector Selector;
@@ -56,7 +54,7 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
   {
     PluginLog.Debug($"Deleting {characterConfig.Id}");
     C.Characters.Remove(characterConfig);
-    if(FindLeaf(characterConfig, out var leaf))
+    if (FindLeaf(characterConfig, out var leaf))
     {
       this.Delete(leaf);
     }
@@ -102,7 +100,7 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
       using var streamWriter = new StreamWriter(fileStream);
       this.SaveToFile(streamWriter, SaveConverter, true);
     }
-    catch(Exception ex)
+    catch (Exception ex)
     {
       ex.Log("Error saving FakeNameFileSystem:");
     }
@@ -147,14 +145,15 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
     protected override void DrawLeafName(Leaf leaf, in State state, bool selected)
     {
       var flag = selected ? ImGuiTreeNodeFlags.Selected | LeafFlags : LeafFlags;
-      using var _ = ImRaii.TreeNode( $"{leaf.Value.IncognitoName()}                                         ", flag);
+      using var _ = ImRaii.TreeNode($"{leaf.Value.IncognitoName()}                                         ", flag);
     }
 
     private void NewLocalCharaButton(Vector2 size)
     {
       if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.User.ToIconString(), size, "Add Local Character", false, true))
       {
-        if (Svc.ClientState.LocalPlayer != null) {
+        if (Svc.ClientState.LocalPlayer != null)
+        {
           var name = Svc.ClientState.LocalPlayer.Name.TextValue;
           var world = Svc.ClientState.LocalPlayer.HomeWorld.RowId;
           if (C.TryAddCharacter(name, world))
@@ -174,7 +173,8 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
     {
       if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.DotCircle.ToIconString(), size, "Add Target Character", false, true))
       {
-        if (Svc.Targets.Target is IPlayerCharacter pc) {
+        if (Svc.Targets.Target is IPlayerCharacter pc)
+        {
           var name = pc.Name.TextValue;
           var world = pc.HomeWorld.RowId;
           if (C.TryAddCharacter(name, world))
@@ -252,18 +252,19 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig> , IDisposab
       if (ImGuiUtil.OpenNameField(newFolderName, ref forderName) && forderName.Length > 0)
         try
         {
-            folder   = FileSystem.FindOrCreateAllFolders(forderName);
-            forderName = string.Empty;
+          folder = FileSystem.FindOrCreateAllFolders(forderName);
+          forderName = string.Empty;
         }
         catch
         {
-            // Ignored
+          // Ignored
         }
     }
 
     private void DeleteCharaConfig(Leaf leaf)
     {
-      if (ImGui.Selectable("Delete")) {
+      if (ImGui.Selectable("Delete"))
+      {
         var world = leaf.Value.World;
         var name = leaf.Value.Name;
         if (C.TryGetCharacterConfig(name, world, out var characterConfig))

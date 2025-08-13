@@ -1,12 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Support;
 using ECommons.ImGuiMethods;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using ImGuiNET;
 using Newtonsoft.Json;
-using OtterGui;
+using System.Linq;
+using System.Reflection;
 
 namespace FakeName.Gui;
 
@@ -14,7 +11,7 @@ public static class TabDebug
 {
   public static void Draw()
   {
-    ImGuiEx.EzTabBar("##debug",[
+    ImGuiEx.EzTabBar("##debug", [
       ("IDM", DrawIdm, null, true),
       ("Config", DrawConfig, null, true),
       ("Cache", DrawCache, null, true),

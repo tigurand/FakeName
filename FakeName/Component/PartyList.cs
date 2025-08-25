@@ -1,15 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 using Dalamud.Plugin.Services;
 using ECommons.DalamudServices;
-using FakeName.Utils;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace FakeName.Component;
 
@@ -170,6 +169,11 @@ public class PartyList : IDisposable
   {
     var partyListAddon = (AddonPartyList*)Svc.GameGui.GetAddonByName("_PartyList", 1).Address;
 
+    if (partyListAddon == null)
+    {
+      return new List<AddonPartyList.PartyListMemberStruct>();
+    }
+
     List<AddonPartyList.PartyListMemberStruct> p = [
       partyListAddon->PartyMembers[0],
       partyListAddon->PartyMembers[1],
@@ -181,7 +185,7 @@ public class PartyList : IDisposable
       partyListAddon->PartyMembers[7]
     ];
 
-    return p.Where(n => n.Name->NodeText.ToString().Length > 0).ToList();
+    return p.Where(n => n.Name != null && n.Name->NodeText.ToString().Length > 0).ToList();
   }
 
   private unsafe void TryCleanUp(uint idx, string fakeNameText, AtkTextNode* nameNode)

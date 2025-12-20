@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Dalamud.NET.Sdk/14.0.1">
   <PropertyGroup>
-    <Version>0.2.0.2</Version>
+    <Version>0.2.1.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ECommons" Version="3.1.0.5" />
+    <PackageReference Include="ECommons" Version="3.1.0.6" />
   </ItemGroup>
 
   <ItemGroup>

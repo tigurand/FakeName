@@ -1,3 +1,6 @@
+using Dalamud.Bindings.ImGui;
+using Dalamud.Interface;
+using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using ECommons;
@@ -11,12 +14,13 @@ using FakeName.Gui;
 using FakeName.OtterGuiHandlers;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Numerics;
 
 namespace FakeName;
 
 public class FakeName : IDalamudPlugin
 {
-  public static FakeName P;
+  public static FakeName P { get; private set; } = null!;
   public static Config C => P.NewConfig;
   public static IpcDataManager Idm => P.IpcDataManager;
   public INamePlateGui NamePlateGui { get; private set; } = null!;
@@ -25,15 +29,15 @@ public class FakeName : IDalamudPlugin
   public Config NewConfig;
   public IpcDataManager IpcDataManager;
 
-  public OtterGuiHandler OtterGuiHandler;
+  public OtterGuiHandler? OtterGuiHandler;
 
-  public AtkTextNodeC AtkTextNodeC;
-  public ChatMessage ChatMessage;
-  public NamePlate NamePlate;
-  public PartyList PartyList;
-  public TargetListInfo TargetListInfo;
+  public AtkTextNodeC? AtkTextNodeC;
+  public ChatMessage? ChatMessage;
+  public NamePlate? NamePlate;
+  public PartyList? PartyList;
+  public TargetListInfo? TargetListInfo;
 
-  public IpcProcessor IpcProcessor;
+  public IpcProcessor? IpcProcessor;
 
   public string msg = "null";
 
@@ -49,6 +53,18 @@ public class FakeName : IDalamudPlugin
 
     Svc.PluginInterface.UiBuilder.OpenMainUi += EzConfigGui.Open;
     EzConfigGui.Init(UI.Draw);
+
+    if (EzConfigGui.Window != null)
+    {
+      EzConfigGui.Window.TitleBarButtons.Add(new Window.TitleBarButton
+      {
+        ShowTooltip = () => ImGui.SetTooltip("Support on Ko-fi"),
+        Icon = FontAwesomeIcon.Heart,
+        IconOffset = new Vector2(1, 1),
+        Click = _ => GenericHelpers.ShellStart("https://ko-fi.com/lucillebagul")
+      });
+    }
+
     EzCmd.Add("/fakename", EzConfigGui.Open, "Open FakeName Configuration");
     EzCmd.Add("/fn", EzConfigGui.Open, "Alias for /fakename");
 
@@ -98,7 +114,9 @@ public class FakeName : IDalamudPlugin
   {
     foreach (var characterConfig in C.Characters)
     {
-      var fs = P.OtterGuiHandler.FakeNameFileSystem;
+      var fs = P.OtterGuiHandler?.FakeNameFileSystem;
+
+      if (fs == null) continue;
 
       if (!fs.FindLeaf(characterConfig, out var leaf))
       {
@@ -122,7 +140,6 @@ public class FakeName : IDalamudPlugin
 
     Svc.PluginInterface.UiBuilder.OpenMainUi -= EzConfigGui.Open;
     ECommonsMain.Dispose();
-    P = null;
   }
 
   public static string IncognitoModeName(string name)

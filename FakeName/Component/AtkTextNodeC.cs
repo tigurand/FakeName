@@ -50,7 +50,7 @@ public class AtkTextNodeC
       return;
     }
 
-    var character = Svc.ClientState.LocalPlayer;
+    var character = Svc.Objects.LocalPlayer;
     if (character == null)
     {
       TryUpdLoginUi(node, textPtr);
@@ -178,18 +178,18 @@ public class AtkTextNodeC
             }
             break;*/
           case TextPayload txt:
-            if (txt.Text.Equals(charaName))
+            if (txt.Text != null && txt.Text.Equals(charaName))
             {
               // Service.Log.Debug($"world[{agent->WorldId}] 替换{txt.Text} {charaName}->{characterConfig.FakeNameText}");
               txt.Text = txt.Text.Replace(charaName, characterConfig.FakeNameText);
               changed = true;
             }
-            else if (txt.Text.Equals($"要以{charaName}登录吗？"))
+            else if (txt.Text != null && txt.Text.Equals($"要以{charaName}登录吗？"))
             {
               txt.Text = txt.Text.Replace(charaName, characterConfig.FakeNameText);
               changed = true;
             }
-            else if (txt.Text.Contains(charaName))
+            else if (txt.Text != null && txt.Text.Contains(charaName))
             {
               // Service.Log.Verbose($"包含角色名的文本:{txt.Text}");
             }

@@ -26,7 +26,7 @@ namespace FakeName.OtterGuiHandlers;
 public sealed class FakeNameFileSystem : FileSystem<CharacterConfig>, IDisposable
 {
   string FilePath = Path.Combine(Svc.PluginInterface.ConfigDirectory.FullName, "FakeNameFileSystem.json");
-  public readonly FakeNameFileSystem.FileSystemSelector Selector;
+  public readonly FileSystemSelector Selector;
   public FakeNameFileSystem(OtterGuiHandler h)
   {
     EzConfig.OnSave += Save;
@@ -43,6 +43,7 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig>, IDisposabl
     {
       e.Log();
     }
+    Selector = new FileSystemSelector(this, h);
   }
 
   public void Dispose()
@@ -71,11 +72,13 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig>, IDisposabl
 
   public bool TryGetPathById(Guid id, [MaybeNullWhen(false)] out string path)
   {
-    if (FindLeaf(C.Characters.FirstOrDefault(x => x.Guid == id), out var leaf))
+    var config = C.Characters.FirstOrDefault(x => x.Guid == id);
+    if (config != null && FindLeaf(config, out var leaf))
     {
       path = leaf.FullName();
       return true;
     }
+
     path = default;
     return false;
   }
@@ -115,13 +118,13 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig>, IDisposabl
   public class FileSystemSelector : FileSystemSelector<CharacterConfig, FileSystemSelector.State>
   {
     string newName = "";
-    string clipboardText = null;
+    string? clipboardText = null;
     string forderName = string.Empty;
-    CharacterConfig cloneConfig = null;
+    CharacterConfig? cloneConfig = null;
     string customName = string.Empty;
     uint customWorld;
     public override ISortMode<CharacterConfig> SortMode => ISortMode<CharacterConfig>.FoldersFirst;
-    static FakeNameFileSystem Fs => P.OtterGuiHandler.FakeNameFileSystem;
+    static FakeNameFileSystem? Fs => P.OtterGuiHandler?.FakeNameFileSystem;
     static ExcelSheet<World>? Worlds => Svc.Data.GetExcelSheet<World>();
     public FileSystemSelector(FakeNameFileSystem fs, OtterGuiHandler h) : base(fs, Svc.KeyState, h.Logger, (e) => e.Log())
     {
@@ -152,17 +155,18 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig>, IDisposabl
     {
       if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.User.ToIconString(), size, "Add Local Character", false, true))
       {
-        if (Svc.ClientState.LocalPlayer != null)
+        if (Svc.Objects.LocalPlayer != null)
         {
-          var name = Svc.ClientState.LocalPlayer.Name.TextValue;
-          var world = Svc.ClientState.LocalPlayer.HomeWorld.RowId;
+          var name = Svc.Objects.LocalPlayer.Name.TextValue;
+          var world = Svc.Objects.LocalPlayer.HomeWorld.RowId;
           if (C.TryAddCharacter(name, world))
           {
             if (C.TryGetCharacterConfig(name, world, out var characterConfig))
             {
               C.Characters.Add(characterConfig);
+              if (Fs == null) return;
               var (leaf, _) = Fs.CreateLeaf(Fs.Root, Fs.ConvertToName(characterConfig), characterConfig);
-              P.OtterGuiHandler.FakeNameFileSystem.Selector.Select(leaf, true);
+              P.OtterGuiHandler?.FakeNameFileSystem.Selector.Select(leaf, true);
             }
           }
         }
@@ -182,8 +186,9 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig>, IDisposabl
             if (C.TryGetCharacterConfig(name, world, out var characterConfig))
             {
               C.Characters.Add(characterConfig);
+              if (Fs == null) return;
               var (leaf, _) = Fs.CreateLeaf(Fs.Root, Fs.ConvertToName(characterConfig), characterConfig);
-              P.OtterGuiHandler.FakeNameFileSystem.Selector.Select(leaf, true);
+              P.OtterGuiHandler?.FakeNameFileSystem.Selector.Select(leaf, true);
             }
           }
         }
@@ -227,8 +232,9 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig>, IDisposabl
                 if (C.TryGetCharacterConfig(customName, customWorld, out var characterConfig))
                 {
                   C.Characters.Add(characterConfig);
+                  if (Fs == null) return;
                   var (leaf, _) = Fs.CreateLeaf(Fs.Root, Fs.ConvertToName(characterConfig), characterConfig);
-                  P.OtterGuiHandler.FakeNameFileSystem.Selector.Select(leaf, true);
+                  P.OtterGuiHandler?.FakeNameFileSystem.Selector.Select(leaf, true);
                 }
               }
             }
@@ -273,10 +279,10 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig>, IDisposabl
           {
             if (worldDic.Remove(name))
             {
-              Fs.DoDelete(characterConfig);
+              Fs?.DoDelete(characterConfig);
               C.Characters.Remove(characterConfig);
-              P.NamePlate.ForceRedraw();
-              P.PartyList.ForceRedraw();
+              P.NamePlate?.ForceRedraw();
+              P.PartyList?.ForceRedraw();
 
               if (worldDic.Count == 0)
               {
@@ -306,9 +312,10 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig>, IDisposabl
           var newCharacterConfig = EzConfig.DefaultSerializationFactory.Deserialize<CharacterConfig>(clipboardText);
           if (newCharacterConfig != null)
           {
+            if (Fs == null) return;
             var (leaf, _) = Fs.CreateLeaf(Fs.Root, newName, newCharacterConfig);
             C.Characters.Add(newCharacterConfig);
-            P.OtterGuiHandler.FakeNameFileSystem.Selector.Select(leaf, true);
+            P.OtterGuiHandler?.FakeNameFileSystem.Selector.Select(leaf, true);
           }
           else
           {
@@ -330,9 +337,10 @@ public sealed class FakeNameFileSystem : FileSystem<CharacterConfig>, IDisposabl
         try
         {
           var newStatus = new CharacterConfig();
+          if (Fs == null) return;
           var (leaf, _) = Fs.CreateLeaf(Fs.Root, newName, newStatus);
           C.Characters.Add(newStatus);
-          P.OtterGuiHandler.FakeNameFileSystem.Selector.Select(leaf, true);
+          P.OtterGuiHandler?.FakeNameFileSystem.Selector.Select(leaf, true);
         }
         catch (Exception e)
         {

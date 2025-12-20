@@ -84,6 +84,7 @@ public class NamePlate : IDisposable
         var c = (Character*)handler.GameObject.Address;
         if (c == null || c->CompanionOwnerId == 0xE000000) return;
         var owner = (IPlayerCharacter?) Svc.Objects.FirstOrDefault(t => t is IPlayerCharacter && t.EntityId == c->CompanionOwnerId);
+        if (owner == null) return;
         if (P.TryGetConfig(owner.Name.TextValue, owner.HomeWorld.RowId, out var characterConfig))
         {
           if (characterConfig.FakeNameText.Trim().Length > 0)

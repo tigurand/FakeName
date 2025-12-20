@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Dalamud.Game.ClientState.Objects.Types;
@@ -21,9 +21,8 @@ internal static class SeStringUtils {
         //     }
         //
         //     break;
-        case TextPayload txt:
+        case TextPayload txt when txt.Text != null:
           txt.Text = txt.Text.Replace(text, replacement);
-
           break;
       }
     }

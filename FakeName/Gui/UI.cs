@@ -30,5 +30,5 @@ public class UI
     ]);
   }
 
-  private static float ButtonOffset;
+  //private static float ButtonOffset;
 }

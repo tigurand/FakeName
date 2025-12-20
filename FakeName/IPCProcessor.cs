@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.DalamudServices;
@@ -14,13 +14,13 @@ public class IpcProcessor : IDisposable
   public const uint MinorVersion = 1;
 
   [EzIPCEvent]
-  readonly Action Ready;
+  readonly Action Ready = null!;
 
   [EzIPCEvent]
-  readonly Action Disposing;
+  readonly Action Disposing = null!;
 
   [EzIPCEvent]
-  public readonly Action<string> LocalCharacterDataChanged;
+  public readonly Action<string> LocalCharacterDataChanged = null!;
 
   public IpcProcessor()
   {
@@ -43,7 +43,7 @@ public class IpcProcessor : IDisposable
   [EzIPC("GetLocalCharacterData")]
   string GetLocalCharacterData()
   {
-    var player = Svc.ClientState.LocalPlayer;
+    var player = Svc.Objects.LocalPlayer;
     if (player == null)
     {
       return string.Empty;

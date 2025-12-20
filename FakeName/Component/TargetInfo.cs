@@ -86,7 +86,7 @@ public class TargetListInfo : IDisposable
       return false;
     }
 
-    var localPlayer = Svc.ClientState.LocalPlayer;
+    var localPlayer = Svc.Objects.LocalPlayer;
     if (localPlayer == null)
     {
       return false;
@@ -136,7 +136,7 @@ public class TargetListInfo : IDisposable
       return false;
     }
 
-    var localPlayer = Svc.ClientState.LocalPlayer;
+    var localPlayer = Svc.Objects.LocalPlayer;
     if (localPlayer == null)
     {
       return false;
@@ -186,7 +186,7 @@ public class TargetListInfo : IDisposable
       return false;
     }
 
-    var localPlayer = Svc.ClientState.LocalPlayer;
+    var localPlayer = Svc.Objects.LocalPlayer;
     if (localPlayer == null)
     {
       return false;
@@ -248,7 +248,7 @@ public class TargetListInfo : IDisposable
       return false;
     }
 
-    var localPlayer = Svc.ClientState.LocalPlayer;
+    var localPlayer = Svc.Objects.LocalPlayer;
     if (localPlayer == null)
     {
       return false;
@@ -292,7 +292,7 @@ public class TargetListInfo : IDisposable
       return false;
     }
 
-    var localPlayer = Svc.ClientState.LocalPlayer;
+    var localPlayer = Svc.Objects.LocalPlayer;
     if (localPlayer == null)
     {
       return false;

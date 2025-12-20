@@ -13,14 +13,16 @@ public class OtterGuiHandler
 
   public OtterGuiHandler()
   {
+    Logger = new();
+
     try
     {
-      Logger = new();
-      FakeNameFileSystem = new(this);
+      FakeNameFileSystem = new FakeNameFileSystem(this);
     }
     catch (Exception ex)
     {
       ex.Log();
+      throw;
     }
   }
 

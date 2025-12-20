@@ -9,14 +9,14 @@ namespace FakeName.Gui;
 
 internal class TabCharacter
 {
-  static CharacterConfig Selected => P.OtterGuiHandler.FakeNameFileSystem.Selector.Selected;
+  static CharacterConfig? Selected => P.OtterGuiHandler?.FakeNameFileSystem?.Selector?.Selected;
 
   public static void Draw()
   {
     using (var child = ImRaii.Child("##Selector", new Vector2(200, 0), true))
     {
         if (child)
-            P.OtterGuiHandler.FakeNameFileSystem.Selector.Draw();
+            P.OtterGuiHandler?.FakeNameFileSystem.Selector.Draw();
     }
     ImGui.SameLine();
     using var group = ImRaii.Group();
@@ -26,10 +26,33 @@ internal class TabCharacter
 
   private static void DrawHeader()
   {
+    var handler = P.OtterGuiHandler;
+    if (handler == null)
+      return;
+
+    var fs = handler.FakeNameFileSystem;
+    if (Selected is not CharacterConfig selected)
+    {
+      HeaderDrawer.Draw(
+          "",
+          0,
+          ImGui.GetColorU32(ImGuiCol.FrameBg),
+          0,
+          HeaderDrawer.Button.IncognitoButton(C.IncognitoMode, v => C.IncognitoMode = v)
+      );
+      return;
+    }
+
+    var headerText = fs.FindLeaf(selected, out var l)
+        ? $"{l.Value.IncognitoName()}({l.Value.WorldName()})"
+        : "";
+
     HeaderDrawer.Draw(
-      P.OtterGuiHandler.FakeNameFileSystem.FindLeaf(Selected, out var l) ? $"{l.Value.IncognitoName()}({l.Value.WorldName()})" : "", 0,
-      ImGui.GetColorU32(ImGuiCol.FrameBg), 0,
-      HeaderDrawer.Button.IncognitoButton(C.IncognitoMode, v => C.IncognitoMode = v)
+        headerText,
+        0,
+        ImGui.GetColorU32(ImGuiCol.FrameBg),
+        0,
+        HeaderDrawer.Button.IncognitoButton(C.IncognitoMode, v => C.IncognitoMode = v)
     );
   }
 
@@ -45,8 +68,14 @@ internal class TabCharacter
 
   public static void DrawCharacterView(CharacterConfig? characterConfig)
   {
-    if (characterConfig == null) return;
-    P.OtterGuiHandler.FakeNameFileSystem.FindLeaf(characterConfig, out var l);
+    if (characterConfig == null)
+      return;
+
+    if (P.OtterGuiHandler?.FakeNameFileSystem is not { } fs)
+      return;
+
+    if (!fs.FindLeaf(characterConfig, out var l))
+      return;
 
     var change = false;
 
@@ -111,7 +140,7 @@ internal class TabCharacter
       change = true;
     }
 
-    var localPlayer = Svc.ClientState.LocalPlayer;
+    var localPlayer = Svc.Objects.LocalPlayer;
     if (change && localPlayer != null)
     {
         if (P.NamePlate != null) P.NamePlate.ForceRedraw();

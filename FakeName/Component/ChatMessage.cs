@@ -30,7 +30,7 @@ public class ChatMessage : IDisposable
   {
     if (!C.Enabled) return;
 
-    var character = Svc.ClientState.LocalPlayer;
+    var character = Svc.Objects.LocalPlayer;
     if (character == null) return;
 
     var localCharaName = character.Name.TextValue;

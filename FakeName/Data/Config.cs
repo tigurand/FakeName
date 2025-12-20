@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using ECommons.Configuration;
 
 namespace FakeName.Data;
-public class Config : IEzConfig
+public class Config
 {
   public bool Enabled = false;
   public bool IncognitoMode = false;

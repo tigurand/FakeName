@@ -70,7 +70,7 @@ public class PartyList : IDisposable
 
   public unsafe void RefreshPartyList(bool dispose = false)
   {
-    var localPlayer = Svc.ClientState.LocalPlayer;
+    var localPlayer = Svc.Objects.LocalPlayer;
     if (localPlayer == null)
     {
       return;
@@ -82,10 +82,16 @@ public class PartyList : IDisposable
     {
       var nodeText = memberStruct.Name->NodeText.ToString();
       var nameNode = memberStruct.Name;
-      var match = Regex.Match(nodeText, @"[\u0000-\u001F\u007F-\u009F\uE000-\uF8FF\s]*([A-Za-z'\-]+(?:\s+[A-Za-z'\-]+)*)[\u0000-\u001F\u007F-\u009F\uE000-\uF8FF\s]*$");
-      if (match.Success)
+      
+      var currentName = nodeText;
+      var spaceIndex = nodeText.IndexOf(' ');
+      if (spaceIndex != -1)
       {
-        var currentName = match.Groups[1].Value.Trim();
+        currentName = nodeText.Substring(spaceIndex + 1).Trim();
+      }
+
+      if (!string.IsNullOrEmpty(currentName))
+      {
         ReplaceName(nameNode, currentName, localPlayer.Name.TextValue, localPlayer.HomeWorld.RowId, dispose);
         if (Svc.Party.Any())
         {
@@ -115,12 +121,30 @@ public class PartyList : IDisposable
 
     var index = idx(playerName, world);
 
-    if (configExists && playerName.Equals(currentName) && characterConfig.Enabled && C.Enabled && !dispose)
+    if (configExists && characterConfig != null && characterConfig.Enabled && C.Enabled && !dispose)
     {
       if (characterConfig.FakeNameText.Trim().Length == 0) return true;
-      modifiedNamePlates[index] = characterConfig.FakeNameText.Trim();
-      nameNode->NodeText.SetString(nameNode->NodeText.ToString().Replace(playerName, characterConfig.FakeNameText.Trim()));
-      return true;
+      
+      if (playerName.Equals(currentName))
+      {
+        modifiedNamePlates[index] = characterConfig.FakeNameText.Trim();
+        nameNode->NodeText.SetString(nameNode->NodeText.ToString().Replace(playerName, characterConfig.FakeNameText.Trim()));
+        return true;
+      }
+      
+      if (modifiedNamePlates.TryGetValue(index, out var old))
+      {
+        if (currentName.Equals(old))
+        {
+          var newFakeName = characterConfig.FakeNameText.Trim();
+          if (!old.Equals(newFakeName))
+          {
+            modifiedNamePlates[index] = newFakeName;
+            nameNode->NodeText.SetString(nameNode->NodeText.ToString().Replace(old, newFakeName));
+          }
+          return true;
+        }
+      }
     }
     else
     {
@@ -128,11 +152,8 @@ public class PartyList : IDisposable
       {
         if (currentName.Equals(old))
         {
-          if (!configExists || !characterConfig.Enabled || !C.Enabled || dispose)
-          {
-            nameNode->NodeText.SetString(nameNode->NodeText.ToString().Replace(old, playerName));
-            modifiedNamePlates.Remove(index);
-          }
+          nameNode->NodeText.SetString(nameNode->NodeText.ToString().Replace(old, playerName));
+          modifiedNamePlates.Remove(index);
         }
       }
     }
@@ -195,7 +216,6 @@ public class PartyList : IDisposable
       return;
     }
 
-    Svc.Log.Debug($"renaming {fakeNameText} to {old}");
     nameNode->NodeText.SetString(nameNode->NodeText.ToString().Replace(fakeNameText, old));
     modifiedNamePlates.Remove(idx);
   }

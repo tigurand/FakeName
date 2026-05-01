@@ -1,8 +1,9 @@
-using System;
+using Dalamud.Game.Chat;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using ECommons.DalamudServices;
+using System;
 using System.Collections.Generic;
 
 namespace FakeName.Component;
@@ -19,11 +20,10 @@ public class ChatMessage : IDisposable
     Svc.Chat.ChatMessage -= OnChatMessage;
   }
 
-  private void OnChatMessage(
-    XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled)
+  private void OnChatMessage(IHandleableChatMessage message)
   {
-    ChangeNames(sender);
-    ChangeNames(message);
+    ChangeNames(message.Sender);
+    ChangeNames(message.Message);
   }
 
   private void ChangeNames(SeString text)

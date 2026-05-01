@@ -56,7 +56,7 @@ public class FakeName : IDalamudPlugin
 
     if (EzConfigGui.Window != null)
     {
-      EzConfigGui.Window.TitleBarButtons.Add(new Window.TitleBarButton
+      EzConfigGui.Window.TitleBarButtons.Add(new TitleBarButton
       {
         ShowTooltip = () => ImGui.SetTooltip("Support on Ko-fi"),
         Icon = FontAwesomeIcon.Heart,

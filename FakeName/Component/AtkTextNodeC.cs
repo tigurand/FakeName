@@ -17,6 +17,36 @@ public class AtkTextNodeC
   [Signature("48 85 C9 0F 84 ?? ?? ?? ?? 4C 8B DC 53 56", DetourName = nameof(AtkTextNodeSetTextDetour))]
   private readonly Hook<AtkTextNodeSetTextDelegate> hook = null!;
 
+  private static readonly string[] TruncationMarkers = { "...", "…" };
+
+  private static bool IsLoginConfirmationText(string text, string charaName)
+  {
+    return text.Equals($"Log in with {charaName}?")                             // English
+        || text.Equals($"要以{charaName}登录吗？")                              // Simplified Chinese
+        || text.Equals($"「{charaName}」でログインします。\nよろしいですか？")       // Japanese
+        || text.Equals($"Mit {charaName} einloggen?")                          // German
+        || text.Equals($"Se connecter avec {charaName} ?")                     // French
+        || text.Equals($"{charaName}로 접속하시겠습니까?")                       // Korean (name ends in vowel/ㄹ)
+        || text.Equals($"{charaName}으로 접속하시겠습니까?");                    // Korean (name ends in consonant)
+  }
+
+  private static bool IsTruncationOf(string truncated, string fullName)
+  {
+    if (string.IsNullOrEmpty(truncated) || string.IsNullOrEmpty(fullName)) return false;
+    foreach (var marker in TruncationMarkers)
+    {
+      if (truncated.EndsWith(marker))
+      {
+        var prefix = truncated.Substring(0, truncated.Length - marker.Length);
+        if (prefix.Length > 0 && prefix.Length < fullName.Length && fullName.StartsWith(prefix))
+        {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   internal AtkTextNodeC()
   {
     Svc.Hook.InitializeFromAttributes(this);
@@ -88,6 +118,11 @@ public class AtkTextNodeC
           else if (txt.Text.Equals(charaName))
           {
             txt.Text = txt.Text.Replace(charaName, characterConfig.FakeNameText.Trim());
+            changed = true;
+          }
+          else if (IsTruncationOf(txt.Text, charaName))
+          {
+            txt.Text = characterConfig.FakeNameText.Trim();
             changed = true;
           }
           /*else if (txt.Text.Contains($"\n《{charaName}》"))
@@ -184,7 +219,12 @@ public class AtkTextNodeC
               txt.Text = txt.Text.Replace(charaName, characterConfig.FakeNameText);
               changed = true;
             }
-            else if (txt.Text != null && txt.Text.Equals($"要以{charaName}登录吗？"))
+            else if (txt.Text != null && IsTruncationOf(txt.Text, charaName))
+            {
+              txt.Text = characterConfig.FakeNameText;
+              changed = true;
+            }
+            else if (txt.Text != null && IsLoginConfirmationText(txt.Text, charaName))
             {
               txt.Text = txt.Text.Replace(charaName, characterConfig.FakeNameText);
               changed = true;

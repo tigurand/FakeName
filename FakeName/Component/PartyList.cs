@@ -115,6 +115,25 @@ public class PartyList : IDisposable
     }
   }
 
+  private static readonly string[] TruncationMarkers = { "...", "…" };
+
+  private static bool IsTruncationOf(string truncated, string fullName)
+  {
+    if (string.IsNullOrEmpty(truncated) || string.IsNullOrEmpty(fullName)) return false;
+    foreach (var marker in TruncationMarkers)
+    {
+      if (truncated.EndsWith(marker))
+      {
+        var prefix = truncated.Substring(0, truncated.Length - marker.Length);
+        if (prefix.Length > 0 && prefix.Length < fullName.Length && fullName.StartsWith(prefix))
+        {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   private unsafe bool ReplaceName(AtkTextNode* nameNode, string currentName, string playerName, uint world, bool dispose = false)
   {
     var configExists = P.TryGetConfig(playerName, world, out var characterConfig, true);
@@ -131,7 +150,14 @@ public class PartyList : IDisposable
         nameNode->NodeText.SetString(nameNode->NodeText.ToString().Replace(playerName, characterConfig.FakeNameText.Trim()));
         return true;
       }
-      
+
+      if (IsTruncationOf(currentName, playerName))
+      {
+        modifiedNamePlates[index] = characterConfig.FakeNameText.Trim();
+        nameNode->NodeText.SetString(nameNode->NodeText.ToString().Replace(currentName, characterConfig.FakeNameText.Trim()));
+        return true;
+      }
+
       if (modifiedNamePlates.TryGetValue(index, out var old))
       {
         if (currentName.Equals(old))

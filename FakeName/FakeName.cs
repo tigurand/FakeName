@@ -61,7 +61,7 @@ public class FakeName : IDalamudPlugin
         ShowTooltip = () => ImGui.SetTooltip("Support Me"),
         Icon = FontAwesomeIcon.Heart,
         IconOffset = new Vector2(1, 1),
-        Click = _ => GenericHelpers.ShellStart("https://sociabuzz.com/lucillebagul")
+        Click = _ => GenericHelpers.ShellStart("https://linktr.ee/LucilleBagul")
       });
     }
 
